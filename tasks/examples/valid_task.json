@@ -1,0 +1,20 @@
+{
+  "task_id": "TASK-001",
+  "project": "openclaw-ai",
+  "goal": "Create a minimal JSON task schema and validator for OpenClaw AI worker tasks.",
+  "acceptance_criteria": [
+    "schemas/task.schema.json exists and defines all required fields from section 5.1.",
+    "validators/validate_task.py validates a correct task file successfully.",
+    "The validator prints a specific error for an invalid task file."
+  ],
+  "constraints": [
+    "Use Python 3 standard library only.",
+    "Keep the implementation simple for Sprint 0."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "manual",
+  "priority": "high",
+  "timeout_minutes": 30
+}

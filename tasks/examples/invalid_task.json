@@ -1,0 +1,12 @@
+{
+  "task_id": "001",
+  "project": "openclaw-ai",
+  "goal": "short",
+  "acceptance_criteria": [],
+  "constraints": ["Use Python 3 standard library only."],
+  "context_files": ["docs/architecture/openclaw_knowledge_base_v2.txt"],
+  "worker": "unknown-worker",
+  "priority": "critical",
+  "timeout_minutes": 0,
+  "unexpected_field": true
+}

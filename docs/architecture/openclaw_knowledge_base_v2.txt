@@ -1,0 +1,312 @@
+OpenClaw AI
+Hệ thống Đa Agent — Kiến trúc & Tri thức Dự án
+Tài liệu nội bộ — Tự động phát triển phần mềm từ A–Z bằng AI
+Thông tin
+Nội dung
+Phiên bản
+v0.1 — Bản khởi đầu
+Ngày tạo
+05/06/2026
+Tác giả
+OpenClaw Team
+Phạm vi
+Kiến trúc, luồng, công cụ, rủi ro
+Mục đích
+Tri thức dài hạn — lưu vào Obsidian / NoteBookLM
+Mục lục
+1. Tổng quan hệ thống
+OpenClaw AI là một hệ thống đa agent chạy trên Docker Desktop, được thiết kế để tự động thực hiện các dự án phần mềm từ A đến Z — từ tiếp nhận yêu cầu của user, lập kế hoạch, phân bổ công việc, thực thi, kiểm tra cho đến báo cáo kết quả.
+1.1 Triết lý thiết kế
+Mục tiêu: Tự động hóa quy trình phát triển phần mềm: một user — một yêu cầu — một dự án hoàn chỉnh.
+Nguồn cảm hứng: Lấy cảm hứng từ PM Agent (Microsoft) để định hình quy trình quản lý dự án cho LeeJ Agent.
+Skill base: Dùng pm-skills repo (38 skills, khung Triple Diamond) làm nền tảng ra quyết định và tạo artifact.
+Kiến trúc: Tách biệt lớp quản lý (LeeJ) và lớp thực thi (Worker) — tương tự CrewAI / AutoGen.
+1.2 Các thành phần chính
+Thành phần
+Vị trí
+Vai trò
+Ghi chú
+Channel
+Ngoài Docker
+Giao tiếp với user
+Telegram, Discord, CLI
+GitHub
+Ngoài Docker
+Lưu trữ code & dữ liệu
+Workspace của từng agent
+OpenClaw AI (LeeJ)
+Trong Docker
+PM Agent — điều phối
+Core của hệ thống
+Lớp Worker
+Trong Docker
+Thực thi task
+Claude CLI, Codex CLI, Hermes...
+NoteBookLM
+Cloud
+Kho tra cứu tài liệu
+Chỉ đọc (read-only)
+Obsidian
+Local
+Bộ nhớ dài hạn
+Đọc + Ghi (R/W)
+2. Kiến trúc hệ thống
+2.1 Luồng chính (Happy Path)
+User gửi yêu cầu qua Channel (Telegram / Discord / CLI).
+LeeJ Agent tiếp nhận, hỏi lại để làm rõ mục tiêu, ràng buộc, stakeholder.
+LeeJ chạy quy trình PM: tạo problem-statement → hypothesis → PRD → user-stories → task file.
+Task file được giao cho Worker layer (có thể nhiều Worker chạy song song).
+Worker thực thi, đẩy kết quả lên GitHub và ghi log vào Obsidian.
+LeeJ kiểm tra chất lượng (edge-cases, launch-checklist) và báo cáo user.
+2.2 Phân cấp các Agent
+Lớp
+Agent
+Chức năng
+Tool đề xuất
+PM (Core)
+LeeJ Agent
+Tiếp nhận, lập kế hoạch, kiểm tra
+pm-skills MCP server
+Worker
+Claude CLI
+Viết code, refactor, sửa bug
+Claude Code CLI
+Worker
+Codex CLI
+Sinh code chuyên biệt
+OpenAI Codex
+Worker
+Hermes
+Lý luận, phân tích
+Nous Hermes
+Worker
+OpenClaw sub-agent
+Tác vụ nội bộ
+Mở rộng sau
+2.3 Vai trò của NoteBookLM và Obsidian
+ 
+NoteBookLM
+Obsidian
+Vai trò
+Kho tra cứu tài liệu
+Bộ nhớ dài hạn của agent
+Chiều dữ liệu
+Chỉ đọc
+Đọc + Ghi
+Dùng khi nào
+Agent cần hiểu tài liệu có sẵn
+Agent cần nhớ lại lịch sử hoạt động
+Lưu trữ
+Cloud (Google)
+Local file system (.md)
+Cấu trúc
+Upload tài liệu theo workspace
+Vault riêng theo từng dự án
+3. LeeJ Agent — PM Core
+3.1 Nguồn tham khảo thiết kế
+LeeJ Agent được thiết kế dựa trên sự phối hợp của hai nguồn:
+Nguồn 1 — Microsoft PM Agent Scenario
+6 bước quy trình chuẩn: Thu thập → Phân tích → Cấu trúc BRD/PRD → Sinh spec → Feedback → Hoàn thiện.
+Tập trung vào tính nhất quán của output (BRD/PRD chuẩn hóa).
+Vòng lặp feedback với stakeholder trước khi hoàn thiện tài liệu.
+Nguồn 2 — pm-skills repo (product-on-purpose)
+38 skills theo khung Triple Diamond (Discover → Define → Develop → Deliver → Measure → Iterate).
+Sẵn có MCP server (pm-skills-mcp) — LeeJ Agent gọi trực tiếp như tool call, không cần đọc file thủ công.
+Giấy phép Apache 2.0 — có thể tùy chỉnh cho ngữ cảnh software agent.
+3.2 Workflow của LeeJ Agent (6 bước)
+Bước
+Hành động
+pm-skill sử dụng
+Output
+1. Tiếp nhận
+Hỏi rõ goal, constraint, stakeholder
+stakeholder-summary
+problem-statement
+Problem frame rõ ràng
+2. Phân tích
+Kiểm tra giả định, sơ đồ cơ hội
+hypothesis
+opportunity-tree
+Giả định được validate
+3. Lập kế hoạch
+Sinh PRD, user stories, spec
+prd
+user-stories
+acceptance-criteria
+Task file chuẩn
+4. Giao Worker
+Phân phối task, theo dõi tiến độ
+(custom adapter)
+Task được thực thi
+5. Kiểm tra
+Review kết quả, test edge case
+edge-cases
+launch-checklist
+Output đã qua QA
+6. Ghi nhớ
+Lưu log, bài học vào Obsidian
+lessons-log
+retrospective
+Tri thức dài hạn
+3.3 Adapter Layer — Lưu ý quan trọng
+pm-skills được thiết kế cho Product Manager con người. Khi áp dụng cho software agent, cần một lớp adapter tùy chỉnh:
+Lọc bỏ: Rút gọn output của mỗi skill, chỉ giữ phần liên quan đến viết code.
+Đổi ngữ cảnh: Chuyển sang chế độ “coding task” thay vì “product document”.
+Task format: Dựa trên user-stories và acceptance-criteria làm input, không phải full PRD.
+Phân tách: Từng Worker chỉ nhận một file task nhỏ, rõ ràng, độc lập.
+4. Đánh giá tính khả thi
+4.1 Điểm mạnh
+Khía cạnh
+Đánh giá
+Lý do
+Kiến trúc phân tầng
+✅ Cao
+Pattern PM + Worker đã được chứng minh qua CrewAI, AutoGen
+Công cụ ngoại vi
+✅ Cao
+GitHub, Obsidian, NoteBookLM đều sẵn có và miễn phí
+Docker sandbox
+✅ Cao
+Cô lập môi trường, tránh rủi ro ảnh hưởng máy host
+pm-skills MCP
+✅ Cao
+LeeJ Agent gọi trực tiếp như tool call, không quản lý file thủ công
+4.2 Điểm cần giải quyết
+Vấn đề
+Mức độ
+Hướng giải quyết
+Single point of failure (LeeJ)
+⚠️ Trung bình
+Thêm bước human-in-the-loop để user phê duyệt task trước khi chạy
+Format message LeeJ ↔ Worker chưa định nghĩa
+⚠️ Cao
+Thiết kế JSON schema chuẩn cho task file (xem mục 5.1)
+Nhiều CLI tool có I/O khác nhau
+⚠️ Trung bình
+Xây adapter layer chuẩn hóa I/O cho từng loại Worker
+Obsidian không có API native
+⚠️ Nhỏ
+Ghi qua file system, thêm file lock khi nhiều Worker ghi đồng thời
+Tiêu chí “done” chưa rõ ràng
+⚠️ Cao
+Định nghĩa acceptance_criteria cụ thể trong từng task file
+Chi phí token leo thang
+🔴 Rủi ro lớn
+Đặt giới hạn token/task, cache kết quả trung gian, hạn chế vòng lặp
+4.3 Lộ trình khởi đầu đề xuất
+Validate từng phần nhỏ theo thứ tự trước khi ghép toàn bộ hệ thống:
+LeeJ Agent nhận yêu cầu → sinh task file đúng định dạng (bước quan trọng nhất).
+Một Worker duy nhất đọc task file và thực thi thành công.
+Ghi kết quả về Obsidian, kiểm tra định dạng và nội dung log.
+Mở rộng ra nhiều Worker chạy song song.
+Tích hợp Channel (Telegram / Discord) để user thực tế có thể ra lệnh.
+5. Cấu trúc Task File đề xuất
+5.1 Schema JSON
+Mỗi task file mà LeeJ Agent sinh ra và giao cho Worker nên có cấu trúc sau:
+{
+  &quot;task_id&quot;: &quot;TASK-001&quot;,
+  &quot;project&quot;: &quot;ten-du-an&quot;,
+  &quot;goal&quot;: &quot;Mo ta muc tieu ro rang, co the do luong duoc&quot;,
+  &quot;acceptance_criteria&quot;: [
+    &quot;Tieu chi 1: cu the, co the kiem tra duoc&quot;,
+    &quot;Tieu chi 2: ...&quot;
+  ],
+  &quot;constraints&quot;: [&quot;ngon-ngu&quot;, &quot;framework&quot;, &quot;gioi-han-cu-the&quot;],
+  &quot;context_files&quot;: [&quot;path/to/relevant/file.md&quot;],
+  &quot;worker&quot;: &quot;claude-cli&quot;,
+  &quot;priority&quot;: &quot;high&quot;,
+  &quot;timeout_minutes&quot;: 30
+}
+5.2 Tiêu chí “Done”
+LeeJ Agent chỉ đánh dấu task là hoàn thành khi thỏa đủ các điều kiện sau:
+Tất cả các mục trong acceptance_criteria được đáp ứng.
+Output file tồn tại tại đường dẫn đã chỉ định.
+Không có lỗi compile hoặc runtime.
+Log đã được ghi vào Obsidian vault của dự án.
+6. Kho tri thức — Obsidian Vault
+6.1 Cấu trúc Vault
+Mỗi dự án có một vault riêng trong Obsidian:
+00-overview/ — Yêu cầu ban đầu, problem statement, goals của dự án.
+01-tasks/ — Toàn bộ task file đã được LeeJ Agent tạo ra.
+02-outputs/ — Kết quả thực thi của từng Worker (code, docs, test).
+03-logs/ — Log hoạt động, lỗi phát sinh, quyết định của agent.
+04-decisions/ — ADR — Architecture Decision Records.
+05-retrospective/ — Retrospective và bài học sau mỗi dự án.
+6.2 Phân vai giữa Obsidian và NoteBookLM
+Quy tắc đơn giản: Obsidian là nơi agent ghi vào. NoteBookLM là nơi agent đọc ra.
+Obsidian: Agent ghi log, task, decision vào Obsidian sau mỗi hành động.
+NoteBookLM: Upload tài liệu tham khảo (spec, API docs) vào NoteBookLM để LeeJ Agent hỏi-đáp khi cần ngữ cảnh.
+7. Rủi ro và biện pháp
+Rủi ro
+Xác suất
+Ảnh hưởng
+Biện pháp
+Chi phí token vượt ngưỡng
+Cao
+Cao
+Đặt giới hạn token/task, cache kết quả trung gian
+LeeJ Agent tạo task sai
+Trung bình
+Cao
+Human-in-the-loop: user phê duyệt task trước khi Worker chạy
+Worker ghi đè lẫn nhau vào Obsidian
+Thấp
+Trung bình
+File lock hoặc hàng đợi ghi tuần tự
+Docker container bị dừng đột ngột
+Thấp
+Trung bình
+Checkpoint state định kỳ lên GitHub
+Worker không hiểu đúng task file
+Trung bình
+Trung bình
+Thêm ví dụ mẫu rõ ràng trong task schema
+Phiên bản tool thay đổi (API break)
+Thấp
+Cao
+Pin phiên bản cụ thể trong Docker image
+8. Bước tiếp theo
+8.1 Ưu tiên ngay lập tức (Sprint 0)
+Thiết kế và viết validator cho JSON schema task file (mục 5.1).
+Thử nghiệm LeeJ Agent (dùng Claude API) sinh task file từ 1 yêu cầu đơn giản.
+Một Worker (Claude CLI) đọc task file và thực thi thành công.
+Thiết lập cấu trúc Obsidian vault theo mục 6.1.
+8.2 Phân kỳ phát triển
+Phase
+Mục tiêu
+Tiêu chí hoàn thành
+Phase 1
+1 LeeJ + 1 Worker + GitHub + Obsidian
+Tự viết 1 function từ yêu cầu mô tả bằng tiếng Việt
+Phase 2
+Nhiều Worker chạy song song
+Tự xây 1 feature có cả frontend + backend
+Phase 3
+Tích hợp Channel
+User ra lệnh qua Telegram, nhận báo cáo hoàn thành
+Phase 4
+NoteBookLM đầy đủ
+LeeJ tra cứu tài liệu tự động khi cần ngữ cảnh
+Phase 5
+Dự án mới từ A–Z
+Giao 1 spec → nhận sản phẩm chạy được
+9. Nguồn tham khảo
+Nguồn
+Đường dẫn
+Ghi chú
+Microsoft PM Agent Scenario
+adoption.microsoft.com/vi-vn/scenario-library/information-technology/project-manager-agent
+6 bước quy trình PM Agent
+pm-skills repo
+github.com/product-on-purpose/pm-skills
+38 PM skills, Apache 2.0
+pm-skills MCP server
+github.com/product-on-purpose/pm-skills-mcp
+MCP server cho pm-skills
+CrewAI
+crewai.com
+Multi-agent framework — tham khảo kiến trúc
+AutoGen (Microsoft)
+github.com/microsoft/autogen
+Multi-agent framework — tham khảo kiến trúc
+</w:pBdr><w:spacing w:before="400"/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:i/><w:iCs/><w:color w:val="888888"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve">Hết tài liệu — Cập nhật tiếp theo sau khi hoàn thành Sprint 0
