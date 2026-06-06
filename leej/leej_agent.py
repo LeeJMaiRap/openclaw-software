@@ -260,8 +260,99 @@ def build_test_task(task_id: str, batch_id: str, dependency_ids: list[str]) -> d
     }
 
 
+
+def build_temperature_task(task_id: str, batch_id: str, function_key: str) -> dict[str, object]:
+    specs = {
+        "c_to_f": {
+            "goal": "Viết hàm Python celsius_to_fahrenheit(c) để đổi nhiệt độ từ Celsius sang Fahrenheit.",
+            "criteria": [
+                "Hàm celsius_to_fahrenheit(c) trả về đúng kết quả cho c=0, c=100 và c=-40.",
+                "Code chạy được không có lỗi runtime.",
+                "Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.",
+            ],
+        },
+        "f_to_c": {
+            "goal": "Viết hàm Python fahrenheit_to_celsius(f) để đổi nhiệt độ từ Fahrenheit sang Celsius.",
+            "criteria": [
+                "Hàm fahrenheit_to_celsius(f) trả về đúng kết quả cho f=32, f=212 và f=-40.",
+                "Code chạy được không có lỗi runtime.",
+                "Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.",
+            ],
+        },
+        "c_to_k": {
+            "goal": "Viết hàm Python celsius_to_kelvin(c) để đổi nhiệt độ từ Celsius sang Kelvin.",
+            "criteria": [
+                "Hàm celsius_to_kelvin(c) trả về đúng kết quả cho c=0, c=100 và c=-273.15.",
+                "Code chạy được không có lỗi runtime.",
+                "Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.",
+            ],
+        },
+    }
+    spec = specs[function_key]
+    return {
+        "task_id": task_id,
+        "project": "openclaw-ai",
+        "goal": spec["goal"],
+        "acceptance_criteria": spec["criteria"],
+        "constraints": [
+            "Keep the solution simple for Sprint 3.",
+            "Write output in Vietnamese unless the task requires another language.",
+        ],
+        "context_files": ["docs/architecture/openclaw_knowledge_base_v2.txt"],
+        "worker": "claude-cli",
+        "priority": "high",
+        "timeout_minutes": 30,
+        "depends_on": [],
+        "batch_id": batch_id,
+    }
+
+
+def build_temperature_test_task(task_id: str, batch_id: str, dependency_ids: list[str]) -> dict[str, object]:
+    return {
+        "task_id": task_id,
+        "project": "openclaw-ai",
+        "goal": "Viết unit test cho các hàm đổi nhiệt độ: celsius_to_fahrenheit, fahrenheit_to_celsius, celsius_to_kelvin.",
+        "acceptance_criteria": [
+            "Unit test kiểm tra celsius_to_fahrenheit(c) với c=0, c=100 và c=-40.",
+            "Unit test kiểm tra fahrenheit_to_celsius(f) với f=32, f=212 và f=-40.",
+            "Unit test kiểm tra celsius_to_kelvin(c) với c=0, c=100 và c=-273.15 và test suite chạy được.",
+        ],
+        "constraints": [
+            "Keep the solution simple for Sprint 3.",
+            "Use Python standard library unittest or pytest-style assertions.",
+            "Write output in Vietnamese unless the task requires another language.",
+        ],
+        "context_files": [f"tasks/{dep}.json" for dep in dependency_ids],
+        "worker": "claude-cli",
+        "priority": "high",
+        "timeout_minutes": 30,
+        "depends_on": dependency_ids,
+        "batch_id": batch_id,
+    }
+
 def build_batch_tasks(request: str) -> tuple[str, list[dict[str, object]]]:
     text = request.lower()
+
+    temperature_keys: list[str] = []
+    if "celsius_to_fahrenheit" in text or "c sang f" in text or "c to f" in text:
+        temperature_keys.append("c_to_f")
+    if "fahrenheit_to_celsius" in text or "f sang c" in text or "f to c" in text:
+        temperature_keys.append("f_to_c")
+    if "celsius_to_kelvin" in text or "c sang k" in text or "c to k" in text:
+        temperature_keys.append("c_to_k")
+    if temperature_keys:
+        wants_tests = "unit test" in text or "test" in text
+        task_count = len(temperature_keys) + (1 if wants_tests else 0)
+        task_ids = next_task_ids(task_count)
+        batch_id = next_batch_id()
+        tasks: list[dict[str, object]] = []
+        for task_id, function_key in zip(task_ids, temperature_keys):
+            tasks.append(build_temperature_task(task_id, batch_id, function_key))
+        if wants_tests:
+            dependency_ids = [str(task["task_id"]) for task in tasks]
+            tasks.append(build_temperature_test_task(task_ids[-1], batch_id, dependency_ids))
+        return batch_id, tasks
+
     function_keys: list[str] = []
     if "trung bình" in text or "trung binh" in text:
         function_keys.append("mean")

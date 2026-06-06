@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-007",
+  "project": "openclaw-ai",
+  "goal": "Viết hàm Python fahrenheit_to_celsius(f) để đổi nhiệt độ từ Fahrenheit sang Celsius.",
+  "acceptance_criteria": [
+    "Hàm fahrenheit_to_celsius(f) trả về đúng kết quả cho f=32, f=212 và f=-40.",
+    "Code chạy được không có lỗi runtime.",
+    "Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 3.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [],
+  "batch_id": "B-002"
+}

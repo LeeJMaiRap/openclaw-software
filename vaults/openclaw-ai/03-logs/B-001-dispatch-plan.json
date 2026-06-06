@@ -1,0 +1,106 @@
+{
+  "batch_id": "B-001",
+  "timeout_minutes": 30,
+  "poll_interval_seconds": 15,
+  "status": "prepared",
+  "waves": [
+    {
+      "wave": 1,
+      "tasks": [
+        {
+          "task_id": "TASK-002",
+          "worker": "claude-cli",
+          "sessionTarget": "session:worker-TASK-002",
+          "sessionName": "worker-TASK-002",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-002\nProject: openclaw-ai\nBatch ID: B-001\nDepends on: none\n\nGoal:\nViết hàm Python tinh_trung_binh(data) để tính trung bình cộng của danh sách số.\n\nAcceptance criteria:\n1. Hàm tinh_trung_binh(data) trả về đúng kết quả cho [1, 2, 3] và [2, 4, 6, 8].\n2. Code xử lý danh sách rỗng bằng lỗi hoặc thông báo rõ ràng.\n3. Output có ví dụ chạy thử và giải thích ngắn cách hoạt động.\n\nConstraints:\n- Keep the solution simple for Sprint 2.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-002-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-002-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-002-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-002-done.md\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-002.json",
+          "depends_on": [],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-002",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-002\nProject: openclaw-ai\nBatch ID: B-001\nDepends on: none\n\nGoal:\nViết hàm Python tinh_trung_binh(data) để tính trung bình cộng của danh sách số.\n\nAcceptance criteria:\n1. Hàm tinh_trung_binh(data) trả về đúng kết quả cho [1, 2, 3] và [2, 4, 6, 8].\n2. Code xử lý danh sách rỗng bằng lỗi hoặc thông báo rõ ràng.\n3. Output có ví dụ chạy thử và giải thích ngắn cách hoạt động.\n\nConstraints:\n- Keep the solution simple for Sprint 2.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-002-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-002-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-002-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-002-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        },
+        {
+          "task_id": "TASK-003",
+          "worker": "claude-cli",
+          "sessionTarget": "session:worker-TASK-003",
+          "sessionName": "worker-TASK-003",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-003\nProject: openclaw-ai\nBatch ID: B-001\nDepends on: none\n\nGoal:\nViết hàm Python tinh_trung_vi(data) để tính trung vị của danh sách số.\n\nAcceptance criteria:\n1. Hàm tinh_trung_vi(data) trả về đúng kết quả cho danh sách có số phần tử lẻ.\n2. Hàm tinh_trung_vi(data) trả về đúng kết quả cho danh sách có số phần tử chẵn.\n3. Code chạy được không có lỗi runtime và có ví dụ chạy thử.\n\nConstraints:\n- Keep the solution simple for Sprint 2.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-003-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-003-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-003-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-003-done.md\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-003.json",
+          "depends_on": [],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-003",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-003\nProject: openclaw-ai\nBatch ID: B-001\nDepends on: none\n\nGoal:\nViết hàm Python tinh_trung_vi(data) để tính trung vị của danh sách số.\n\nAcceptance criteria:\n1. Hàm tinh_trung_vi(data) trả về đúng kết quả cho danh sách có số phần tử lẻ.\n2. Hàm tinh_trung_vi(data) trả về đúng kết quả cho danh sách có số phần tử chẵn.\n3. Code chạy được không có lỗi runtime và có ví dụ chạy thử.\n\nConstraints:\n- Keep the solution simple for Sprint 2.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-003-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-003-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-003-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-003-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        },
+        {
+          "task_id": "TASK-004",
+          "worker": "claude-cli",
+          "sessionTarget": "session:worker-TASK-004",
+          "sessionName": "worker-TASK-004",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-004\nProject: openclaw-ai\nBatch ID: B-001\nDepends on: none\n\nGoal:\nViết hàm Python tinh_do_lech_chuan(data) để tính độ lệch chuẩn của danh sách số.\n\nAcceptance criteria:\n1. Hàm tinh_do_lech_chuan(data) trả về đúng kết quả cho ít nhất 2 bộ dữ liệu ví dụ.\n2. Code nêu rõ đang tính độ lệch chuẩn population hay sample.\n3. Code chạy được không có lỗi runtime và có ví dụ chạy thử.\n\nConstraints:\n- Keep the solution simple for Sprint 2.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-004-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-004-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-004-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-004-done.md\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-004.json",
+          "depends_on": [],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-004",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-004\nProject: openclaw-ai\nBatch ID: B-001\nDepends on: none\n\nGoal:\nViết hàm Python tinh_do_lech_chuan(data) để tính độ lệch chuẩn của danh sách số.\n\nAcceptance criteria:\n1. Hàm tinh_do_lech_chuan(data) trả về đúng kết quả cho ít nhất 2 bộ dữ liệu ví dụ.\n2. Code nêu rõ đang tính độ lệch chuẩn population hay sample.\n3. Code chạy được không có lỗi runtime và có ví dụ chạy thử.\n\nConstraints:\n- Keep the solution simple for Sprint 2.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-004-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-004-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-004-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-004-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        }
+      ]
+    },
+    {
+      "wave": 2,
+      "tasks": [
+        {
+          "task_id": "TASK-005",
+          "worker": "claude-cli",
+          "sessionTarget": "session:worker-TASK-005",
+          "sessionName": "worker-TASK-005",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-005\nProject: openclaw-ai\nBatch ID: B-001\nDepends on: TASK-002, TASK-003, TASK-004\n\nGoal:\nViết unit test cho các hàm thống kê cơ bản: tinh_trung_binh, tinh_trung_vi, tinh_do_lech_chuan.\n\nAcceptance criteria:\n1. Unit test kiểm tra tinh_trung_binh(data) với ít nhất 2 bộ dữ liệu.\n2. Unit test kiểm tra tinh_trung_vi(data) với danh sách có số phần tử chẵn và lẻ.\n3. Unit test kiểm tra tinh_do_lech_chuan(data) với ít nhất 2 bộ dữ liệu và test suite chạy được.\n\nConstraints:\n- Keep the solution simple for Sprint 2.\n- Use Python standard library unittest or pytest-style assertions.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-005-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-005-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-005-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-005-done.md\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-005.json",
+          "depends_on": [
+            "TASK-002",
+            "TASK-003",
+            "TASK-004"
+          ],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-005",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-005\nProject: openclaw-ai\nBatch ID: B-001\nDepends on: TASK-002, TASK-003, TASK-004\n\nGoal:\nViết unit test cho các hàm thống kê cơ bản: tinh_trung_binh, tinh_trung_vi, tinh_do_lech_chuan.\n\nAcceptance criteria:\n1. Unit test kiểm tra tinh_trung_binh(data) với ít nhất 2 bộ dữ liệu.\n2. Unit test kiểm tra tinh_trung_vi(data) với danh sách có số phần tử chẵn và lẻ.\n3. Unit test kiểm tra tinh_do_lech_chuan(data) với ít nhất 2 bộ dữ liệu và test suite chạy được.\n\nConstraints:\n- Keep the solution simple for Sprint 2.\n- Use Python standard library unittest or pytest-style assertions.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-005-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-005-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-005-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-005-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

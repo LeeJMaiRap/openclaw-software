@@ -249,6 +249,93 @@ def compute_waves(tasks: list[dict[str, Any]]) -> list[list[dict[str, Any]]]:
     return waves
 
 
+
+def build_dispatch_plan(batch_id: str, waves: list[list[dict[str, Any]]], timeout_minutes: int) -> dict[str, Any]:
+    plan_waves: list[dict[str, Any]] = []
+    for index, wave in enumerate(waves, 1):
+        plan_tasks: list[dict[str, Any]] = []
+        for task in wave:
+            path = task.get("_path", task_path(task["task_id"]))
+            dispatch = build_dispatch(task, Path(path))
+            plan_tasks.append({
+                "task_id": task["task_id"],
+                "worker": task["worker"],
+                "sessionTarget": dispatch.get("sessionTarget"),
+                "sessionName": dispatch.get("sessionName"),
+                "model": dispatch.get("model"),
+                "timeoutSeconds": dispatch.get("timeoutSeconds"),
+                "message": dispatch.get("message"),
+                "taskPath": str(path),
+                "depends_on": task.get("depends_on", []),
+                "cronPayload": dispatch.get("cronPayload"),
+            })
+        plan_waves.append({"wave": index, "tasks": plan_tasks})
+    return {
+        "batch_id": batch_id,
+        "timeout_minutes": timeout_minutes,
+        "poll_interval_seconds": 15,
+        "status": "prepared",
+        "waves": plan_waves,
+    }
+
+
+def write_dispatch_plan(batch_id: str, plan: dict[str, Any]) -> Path:
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    plan_path = LOG_DIR / f"{batch_id}-dispatch-plan.json"
+    plan_path.write_text(json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return plan_path
+
+
+def poll_wave(job_ids: list[str], timeout_minutes: int) -> dict[str, Any]:
+    """Runtime polling contract for Sprint 3.
+
+    Python dispatcher cannot call the OpenClaw cron tool directly. The OpenClaw
+    runtime wrapper must poll cron run history for each job id every 15 seconds
+    until every job reaches ok/error, or until timeout_minutes expires.
+    """
+    if not job_ids:
+        raise ValueError("job_ids must not be empty")
+    if timeout_minutes <= 0:
+        raise ValueError("timeout_minutes must be positive")
+    return {
+        "done": False,
+        "ok": 0,
+        "error": 0,
+        "timeout": False,
+        "poll_interval_seconds": 15,
+        "timeout_minutes": timeout_minutes,
+        "jobs": {
+            job_id: {
+                "status": "pending",
+                "summary": "Waiting for OpenClaw runtime cron run history polling.",
+                "durationMs": None,
+            }
+            for job_id in job_ids
+        },
+    }
+
+
+def append_wave_result_log(batch_id: str, wave_index: int, task_results: list[dict[str, Any]], status: str) -> None:
+    title_by_status = {
+        "done": "done",
+        "error": "completed with errors",
+        "timeout": "timeout",
+    }
+    title = title_by_status.get(status, status)
+    lines = [f"## Wave {wave_index} {title}\n\n", f"- Timestamp: {utc_now()}\n"]
+    for result in task_results:
+        duration = result.get("durationMs")
+        duration_text = f" | duration: {duration / 1000:.1f}s" if isinstance(duration, int) else ""
+        summary = result.get("summary")
+        summary_text = f" | summary: {summary}" if summary else ""
+        lines.append(
+            f"- {result['task_id']} → {result.get('sessionName', 'N/A')} | "
+            f"status: {result.get('status', 'unknown')} | cron status: {result.get('cronStatus', 'unknown')}"
+            f"{duration_text}{summary_text}\n"
+        )
+    lines.append("\n")
+    append_batch_log(batch_id, "".join(lines))
+
 def run_single(task_file: str) -> int:
     path = Path(task_file)
     if not path.is_absolute():
@@ -272,10 +359,13 @@ def run_batch(batch_id: str) -> int:
     batch_timeout = max(int(task["timeout_minutes"]) for task in tasks)
     total = len(tasks)
 
+    plan = build_dispatch_plan(batch_id, waves, batch_timeout)
+    plan_path = write_dispatch_plan(batch_id, plan)
+
     log_path = LOG_DIR / f"{batch_id}-batch.md"
     if log_path.exists():
         log_path.unlink()
-    append_batch_log(batch_id, f"# {batch_id} — Batch dispatch log\n\n- Created at: {utc_now()}\n- Tasks: {total}\n- Batch timeout minutes: {batch_timeout}\n\n")
+    append_batch_log(batch_id, f"# {batch_id} — Batch dispatch log\n\n- Created at: {utc_now()}\n- Tasks: {total}\n- Batch timeout minutes: {batch_timeout}\n- Dispatch plan: `{plan_path.relative_to(REPO_ROOT)}`\n- Poll interval seconds: 15\n- Runtime note: Python prepared only; no cron jobs spawned by this command.\n\n")
 
     dispatched = 0
     for index, wave in enumerate(waves, 1):

@@ -1,0 +1,106 @@
+{
+  "batch_id": "B-002",
+  "timeout_minutes": 30,
+  "poll_interval_seconds": 15,
+  "status": "prepared",
+  "waves": [
+    {
+      "wave": 1,
+      "tasks": [
+        {
+          "task_id": "TASK-006",
+          "worker": "claude-cli",
+          "sessionTarget": "session:worker-TASK-006",
+          "sessionName": "worker-TASK-006",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-006\nProject: openclaw-ai\nBatch ID: B-002\nDepends on: none\n\nGoal:\nViết hàm Python celsius_to_fahrenheit(c) để đổi nhiệt độ từ Celsius sang Fahrenheit.\n\nAcceptance criteria:\n1. Hàm celsius_to_fahrenheit(c) trả về đúng kết quả cho c=0, c=100 và c=-40.\n2. Code chạy được không có lỗi runtime.\n3. Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.\n\nConstraints:\n- Keep the solution simple for Sprint 3.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-006-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-006-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-006-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-006-done.md\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-006.json",
+          "depends_on": [],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-006",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-006\nProject: openclaw-ai\nBatch ID: B-002\nDepends on: none\n\nGoal:\nViết hàm Python celsius_to_fahrenheit(c) để đổi nhiệt độ từ Celsius sang Fahrenheit.\n\nAcceptance criteria:\n1. Hàm celsius_to_fahrenheit(c) trả về đúng kết quả cho c=0, c=100 và c=-40.\n2. Code chạy được không có lỗi runtime.\n3. Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.\n\nConstraints:\n- Keep the solution simple for Sprint 3.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-006-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-006-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-006-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-006-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        },
+        {
+          "task_id": "TASK-007",
+          "worker": "claude-cli",
+          "sessionTarget": "session:worker-TASK-007",
+          "sessionName": "worker-TASK-007",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-007\nProject: openclaw-ai\nBatch ID: B-002\nDepends on: none\n\nGoal:\nViết hàm Python fahrenheit_to_celsius(f) để đổi nhiệt độ từ Fahrenheit sang Celsius.\n\nAcceptance criteria:\n1. Hàm fahrenheit_to_celsius(f) trả về đúng kết quả cho f=32, f=212 và f=-40.\n2. Code chạy được không có lỗi runtime.\n3. Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.\n\nConstraints:\n- Keep the solution simple for Sprint 3.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-007-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-007-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-007-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-007-done.md\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-007.json",
+          "depends_on": [],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-007",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-007\nProject: openclaw-ai\nBatch ID: B-002\nDepends on: none\n\nGoal:\nViết hàm Python fahrenheit_to_celsius(f) để đổi nhiệt độ từ Fahrenheit sang Celsius.\n\nAcceptance criteria:\n1. Hàm fahrenheit_to_celsius(f) trả về đúng kết quả cho f=32, f=212 và f=-40.\n2. Code chạy được không có lỗi runtime.\n3. Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.\n\nConstraints:\n- Keep the solution simple for Sprint 3.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-007-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-007-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-007-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-007-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        },
+        {
+          "task_id": "TASK-008",
+          "worker": "claude-cli",
+          "sessionTarget": "session:worker-TASK-008",
+          "sessionName": "worker-TASK-008",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-008\nProject: openclaw-ai\nBatch ID: B-002\nDepends on: none\n\nGoal:\nViết hàm Python celsius_to_kelvin(c) để đổi nhiệt độ từ Celsius sang Kelvin.\n\nAcceptance criteria:\n1. Hàm celsius_to_kelvin(c) trả về đúng kết quả cho c=0, c=100 và c=-273.15.\n2. Code chạy được không có lỗi runtime.\n3. Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.\n\nConstraints:\n- Keep the solution simple for Sprint 3.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-008-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-008-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-008-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-008-done.md\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-008.json",
+          "depends_on": [],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-008",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-008\nProject: openclaw-ai\nBatch ID: B-002\nDepends on: none\n\nGoal:\nViết hàm Python celsius_to_kelvin(c) để đổi nhiệt độ từ Celsius sang Kelvin.\n\nAcceptance criteria:\n1. Hàm celsius_to_kelvin(c) trả về đúng kết quả cho c=0, c=100 và c=-273.15.\n2. Code chạy được không có lỗi runtime.\n3. Output có ví dụ chạy thử và giải thích ngắn công thức chuyển đổi.\n\nConstraints:\n- Keep the solution simple for Sprint 3.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-008-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-008-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-008-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-008-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        }
+      ]
+    },
+    {
+      "wave": 2,
+      "tasks": [
+        {
+          "task_id": "TASK-009",
+          "worker": "claude-cli",
+          "sessionTarget": "session:worker-TASK-009",
+          "sessionName": "worker-TASK-009",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-009\nProject: openclaw-ai\nBatch ID: B-002\nDepends on: TASK-006, TASK-007, TASK-008\n\nGoal:\nViết unit test cho các hàm đổi nhiệt độ: celsius_to_fahrenheit, fahrenheit_to_celsius, celsius_to_kelvin.\n\nAcceptance criteria:\n1. Unit test kiểm tra celsius_to_fahrenheit(c) với c=0, c=100 và c=-40.\n2. Unit test kiểm tra fahrenheit_to_celsius(f) với f=32, f=212 và f=-40.\n3. Unit test kiểm tra celsius_to_kelvin(c) với c=0, c=100 và c=-273.15 và test suite chạy được.\n\nConstraints:\n- Keep the solution simple for Sprint 3.\n- Use Python standard library unittest or pytest-style assertions.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-009-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-009-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-009-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-009-done.md\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-009.json",
+          "depends_on": [
+            "TASK-006",
+            "TASK-007",
+            "TASK-008"
+          ],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-009",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-009\nProject: openclaw-ai\nBatch ID: B-002\nDepends on: TASK-006, TASK-007, TASK-008\n\nGoal:\nViết unit test cho các hàm đổi nhiệt độ: celsius_to_fahrenheit, fahrenheit_to_celsius, celsius_to_kelvin.\n\nAcceptance criteria:\n1. Unit test kiểm tra celsius_to_fahrenheit(c) với c=0, c=100 và c=-40.\n2. Unit test kiểm tra fahrenheit_to_celsius(f) với f=32, f=212 và f=-40.\n3. Unit test kiểm tra celsius_to_kelvin(c) với c=0, c=100 và c=-273.15 và test suite chạy được.\n\nConstraints:\n- Keep the solution simple for Sprint 3.\n- Use Python standard library unittest or pytest-style assertions.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-009-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-009-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-009-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-009-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
