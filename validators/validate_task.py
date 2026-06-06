@@ -105,6 +105,22 @@ def validate_value(value: Any, schema: dict[str, Any], path: str = "") -> None:
         return
 
 
+def validate_task_semantics(task: dict[str, Any]) -> None:
+    task_id = task.get("task_id")
+    depends_on = task.get("depends_on", [])
+    if not isinstance(task_id, str) or not isinstance(depends_on, list):
+        return
+
+    if task_id in depends_on:
+        raise ValidationError(f"depends_on không được chứa chính task_id {task_id}")
+
+    seen: set[str] = set()
+    for dep in depends_on:
+        if isinstance(dep, str):
+            if dep in seen:
+                raise ValidationError(f"depends_on chứa task id trùng: {dep}")
+            seen.add(dep)
+
 def main() -> int:
     if len(sys.argv) != 2:
         print("❌ Lỗi: Cách dùng: python3 validators/validate_task.py <file>")
@@ -116,6 +132,7 @@ def main() -> int:
         schema = load_json(SCHEMA_PATH)
         task = load_json(task_path)
         validate_value(task, schema)
+        validate_task_semantics(task)
     except ValidationError as exc:
         print(f"❌ Lỗi: {exc}")
         return 1

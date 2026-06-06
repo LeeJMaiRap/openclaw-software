@@ -1,0 +1,29 @@
+{
+  "task_id": "TASK-005",
+  "project": "openclaw-ai",
+  "goal": "Viết unit test cho các hàm thống kê cơ bản: tinh_trung_binh, tinh_trung_vi, tinh_do_lech_chuan.",
+  "acceptance_criteria": [
+    "Unit test kiểm tra tinh_trung_binh(data) với ít nhất 2 bộ dữ liệu.",
+    "Unit test kiểm tra tinh_trung_vi(data) với danh sách có số phần tử chẵn và lẻ.",
+    "Unit test kiểm tra tinh_do_lech_chuan(data) với ít nhất 2 bộ dữ liệu và test suite chạy được."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 2.",
+    "Use Python standard library unittest or pytest-style assertions.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "tasks/TASK-002.json",
+    "tasks/TASK-003.json",
+    "tasks/TASK-004.json"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-002",
+    "TASK-003",
+    "TASK-004"
+  ],
+  "batch_id": "B-001"
+}

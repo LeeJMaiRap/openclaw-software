@@ -16,5 +16,6 @@
   ],
   "worker": "manual",
   "priority": "high",
-  "timeout_minutes": 30
+  "timeout_minutes": 30,
+  "depends_on": []
 }

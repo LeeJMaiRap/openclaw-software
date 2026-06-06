@@ -1,14 +1,14 @@
 {
-  "task_id": "TASK-001",
+  "task_id": "TASK-002",
   "project": "openclaw-ai",
-  "goal": "Viết hàm Python tính số Fibonacci thứ n",
+  "goal": "Viết hàm Python tinh_trung_binh(data) để tính trung bình cộng của danh sách số.",
   "acceptance_criteria": [
-    "Hàm fibonacci(n) trả về đúng giá trị cho n=0, n=1, n=5 và n=10.",
-    "Code chạy được không có lỗi runtime.",
+    "Hàm tinh_trung_binh(data) trả về đúng kết quả cho [1, 2, 3] và [2, 4, 6, 8].",
+    "Code xử lý danh sách rỗng bằng lỗi hoặc thông báo rõ ràng.",
     "Output có ví dụ chạy thử và giải thích ngắn cách hoạt động."
   ],
   "constraints": [
-    "Keep the solution simple for Sprint 1.",
+    "Keep the solution simple for Sprint 2.",
     "Write output in Vietnamese unless the task requires another language."
   ],
   "context_files": [
@@ -17,5 +17,6 @@
   "worker": "claude-cli",
   "priority": "high",
   "timeout_minutes": 30,
-  "depends_on": []
+  "depends_on": [],
+  "batch_id": "B-001"
 }

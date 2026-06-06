@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""LeeJ Agent Sprint 1: create a validated worker task from user request.
+"""LeeJ Agent: create validated OpenClaw AI task files.
 
 Usage:
     python3 leej/leej_agent.py "Viết hàm Python tính số Fibonacci thứ n"
+    python3 leej/leej_agent.py --batch "Xây dựng module thống kê..."
     python3 leej/leej_agent.py --file request.txt
     echo "..." | python3 leej/leej_agent.py
 """
@@ -17,12 +18,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TASKS_DIR = REPO_ROOT / "tasks"
 TASK_LOG_DIR = REPO_ROOT / "vaults" / "openclaw-ai" / "01-tasks"
 VALIDATOR = REPO_ROOT / "validators" / "validate_task.py"
-
 
 CODE_KEYWORDS = [
     "viết hàm",
@@ -61,9 +60,10 @@ MANUAL_KEYWORDS = [
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Create an OpenClaw AI task file.")
+    parser = argparse.ArgumentParser(description="Create OpenClaw AI task files.")
     parser.add_argument("request", nargs="*", help="User request text.")
     parser.add_argument("--file", dest="file", help="Read request text from file.")
+    parser.add_argument("--batch", action="store_true", help="Split a larger request into a batch of task files.")
     return parser.parse_args()
 
 
@@ -81,14 +81,41 @@ def read_request(args: argparse.Namespace) -> str:
     return text
 
 
-def next_task_id() -> str:
+def existing_task_numbers() -> list[int]:
     TASKS_DIR.mkdir(parents=True, exist_ok=True)
-    max_id = 0
+    numbers: list[int] = []
     for path in TASKS_DIR.glob("TASK-*.json"):
         match = re.fullmatch(r"TASK-(\d{3,})\.json", path.name)
         if match:
-            max_id = max(max_id, int(match.group(1)))
+            numbers.append(int(match.group(1)))
+    return numbers
+
+
+def next_task_id() -> str:
+    numbers = existing_task_numbers()
+    max_id = max(numbers) if numbers else 0
     return f"TASK-{max_id + 1:03d}"
+
+
+def next_task_ids(count: int) -> list[str]:
+    numbers = existing_task_numbers()
+    start = (max(numbers) if numbers else 0) + 1
+    return [f"TASK-{num:03d}" for num in range(start, start + count)]
+
+
+def next_batch_id() -> str:
+    max_id = 0
+    for path in TASKS_DIR.glob("TASK-*.json"):
+        try:
+            task = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        batch_id = task.get("batch_id")
+        if isinstance(batch_id, str):
+            match = re.fullmatch(r"B-(\d{3,})", batch_id)
+            if match:
+                max_id = max(max_id, int(match.group(1)))
+    return f"B-{max_id + 1:03d}"
 
 
 def classify_worker(request: str) -> tuple[str, str]:
@@ -150,7 +177,7 @@ def build_task(task_id: str, request: str) -> dict[str, object]:
         "goal": request,
         "acceptance_criteria": acceptance_criteria(request, task_type),
         "constraints": [
-            "Keep the solution simple for Sprint 1.",
+            "Keep the solution simple for Sprint 2.",
             "Write output in Vietnamese unless the task requires another language.",
         ],
         "context_files": [
@@ -159,7 +186,107 @@ def build_task(task_id: str, request: str) -> dict[str, object]:
         "worker": worker,
         "priority": "high",
         "timeout_minutes": 30,
+        "depends_on": [],
     }
+
+
+def build_function_task(task_id: str, batch_id: str, function_key: str) -> dict[str, object]:
+    specs = {
+        "mean": {
+            "goal": "Viết hàm Python tinh_trung_binh(data) để tính trung bình cộng của danh sách số.",
+            "criteria": [
+                "Hàm tinh_trung_binh(data) trả về đúng kết quả cho [1, 2, 3] và [2, 4, 6, 8].",
+                "Code xử lý danh sách rỗng bằng lỗi hoặc thông báo rõ ràng.",
+                "Output có ví dụ chạy thử và giải thích ngắn cách hoạt động.",
+            ],
+        },
+        "median": {
+            "goal": "Viết hàm Python tinh_trung_vi(data) để tính trung vị của danh sách số.",
+            "criteria": [
+                "Hàm tinh_trung_vi(data) trả về đúng kết quả cho danh sách có số phần tử lẻ.",
+                "Hàm tinh_trung_vi(data) trả về đúng kết quả cho danh sách có số phần tử chẵn.",
+                "Code chạy được không có lỗi runtime và có ví dụ chạy thử.",
+            ],
+        },
+        "stddev": {
+            "goal": "Viết hàm Python tinh_do_lech_chuan(data) để tính độ lệch chuẩn của danh sách số.",
+            "criteria": [
+                "Hàm tinh_do_lech_chuan(data) trả về đúng kết quả cho ít nhất 2 bộ dữ liệu ví dụ.",
+                "Code nêu rõ đang tính độ lệch chuẩn population hay sample.",
+                "Code chạy được không có lỗi runtime và có ví dụ chạy thử.",
+            ],
+        },
+    }
+    spec = specs[function_key]
+    return {
+        "task_id": task_id,
+        "project": "openclaw-ai",
+        "goal": spec["goal"],
+        "acceptance_criteria": spec["criteria"],
+        "constraints": [
+            "Keep the solution simple for Sprint 2.",
+            "Write output in Vietnamese unless the task requires another language.",
+        ],
+        "context_files": ["docs/architecture/openclaw_knowledge_base_v2.txt"],
+        "worker": "claude-cli",
+        "priority": "high",
+        "timeout_minutes": 30,
+        "depends_on": [],
+        "batch_id": batch_id,
+    }
+
+
+def build_test_task(task_id: str, batch_id: str, dependency_ids: list[str]) -> dict[str, object]:
+    return {
+        "task_id": task_id,
+        "project": "openclaw-ai",
+        "goal": "Viết unit test cho các hàm thống kê cơ bản: tinh_trung_binh, tinh_trung_vi, tinh_do_lech_chuan.",
+        "acceptance_criteria": [
+            "Unit test kiểm tra tinh_trung_binh(data) với ít nhất 2 bộ dữ liệu.",
+            "Unit test kiểm tra tinh_trung_vi(data) với danh sách có số phần tử chẵn và lẻ.",
+            "Unit test kiểm tra tinh_do_lech_chuan(data) với ít nhất 2 bộ dữ liệu và test suite chạy được.",
+        ],
+        "constraints": [
+            "Keep the solution simple for Sprint 2.",
+            "Use Python standard library unittest or pytest-style assertions.",
+            "Write output in Vietnamese unless the task requires another language.",
+        ],
+        "context_files": [f"tasks/{dep}.json" for dep in dependency_ids],
+        "worker": "claude-cli",
+        "priority": "high",
+        "timeout_minutes": 30,
+        "depends_on": dependency_ids,
+        "batch_id": batch_id,
+    }
+
+
+def build_batch_tasks(request: str) -> tuple[str, list[dict[str, object]]]:
+    text = request.lower()
+    function_keys: list[str] = []
+    if "trung bình" in text or "trung binh" in text:
+        function_keys.append("mean")
+    if "trung vị" in text or "trung vi" in text:
+        function_keys.append("median")
+    if "độ lệch chuẩn" in text or "do lech chuan" in text or "lech chuan" in text:
+        function_keys.append("stddev")
+
+    if not function_keys:
+        raise ValueError("Không nhận diện được chức năng để chia batch")
+
+    wants_tests = "unit test" in text or "test" in text
+    task_count = len(function_keys) + (1 if wants_tests else 0)
+    task_ids = next_task_ids(task_count)
+    batch_id = next_batch_id()
+
+    tasks: list[dict[str, object]] = []
+    for task_id, function_key in zip(task_ids, function_keys):
+        tasks.append(build_function_task(task_id, batch_id, function_key))
+
+    if wants_tests:
+        dependency_ids = [str(task["task_id"]) for task in tasks]
+        tasks.append(build_test_task(task_ids[-1], batch_id, dependency_ids))
+
+    return batch_id, tasks
 
 
 def validate_task(path: Path) -> None:
@@ -182,6 +309,8 @@ def write_task_log(task: dict[str, object], request: str, task_path: Path) -> No
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     criteria = "\n".join(f"- {item}" for item in task["acceptance_criteria"])
     constraints = "\n".join(f"- {item}" for item in task["constraints"])
+    depends_on = task.get("depends_on", [])
+    batch_id = task.get("batch_id", "N/A")
     content = f"""# {task_id} — Task created
 
 ## Metadata
@@ -191,6 +320,8 @@ def write_task_log(task: dict[str, object], request: str, task_path: Path) -> No
 - Worker: {task['worker']}
 - Priority: {task['priority']}
 - Timeout: {task['timeout_minutes']} minutes
+- Depends on: {', '.join(depends_on) if depends_on else 'none'}
+- Batch ID: {batch_id}
 - Task file: `{task_path.relative_to(REPO_ROOT)}`
 
 ## User request
@@ -212,23 +343,42 @@ def write_task_log(task: dict[str, object], request: str, task_path: Path) -> No
     (TASK_LOG_DIR / f"{task_id}.md").write_text(content, encoding="utf-8")
 
 
+def write_and_validate_task(task: dict[str, object], request: str) -> Path:
+    task_id = str(task["task_id"])
+    task_path = TASKS_DIR / f"{task_id}.json"
+    task_path.write_text(json.dumps(task, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    validate_task(task_path)
+    write_task_log(task, request, task_path)
+    return task_path
+
+
+def print_batch_summary(batch_id: str, tasks: list[dict[str, object]]) -> None:
+    print(f"✅ Batch {batch_id}: {len(tasks)} tasks created")
+    for task in tasks:
+        deps = task.get("depends_on", [])
+        dep_text = "no deps" if not deps else "deps: " + ", ".join(str(dep) for dep in deps)
+        print(f"   {task['task_id']} ({dep_text}) → {task['worker']}")
+
+
 def main() -> int:
     args = parse_args()
     try:
         request = read_request(args)
+        if args.batch:
+            batch_id, tasks = build_batch_tasks(request)
+            for task in tasks:
+                write_and_validate_task(task, request)
+            print_batch_summary(batch_id, tasks)
+            return 0
     except ValueError as exc:
         print(f"❌ Lỗi: {exc}")
         return 1
 
     task_id = next_task_id()
     task = build_task(task_id, request)
-    task_path = TASKS_DIR / f"{task_id}.json"
-    task_path.write_text(json.dumps(task, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    task_path = write_and_validate_task(task, request)
 
-    validate_task(task_path)
-    write_task_log(task, request, task_path)
-
-    print(f"✅ Task {task_id} đã tạo: tasks/{task_id}.json")
+    print(f"✅ Task {task_id} đã tạo: {task_path.relative_to(REPO_ROOT)}")
     return 0
 
 

@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-003",
+  "project": "openclaw-ai",
+  "goal": "Viết hàm Python tinh_trung_vi(data) để tính trung vị của danh sách số.",
+  "acceptance_criteria": [
+    "Hàm tinh_trung_vi(data) trả về đúng kết quả cho danh sách có số phần tử lẻ.",
+    "Hàm tinh_trung_vi(data) trả về đúng kết quả cho danh sách có số phần tử chẵn.",
+    "Code chạy được không có lỗi runtime và có ví dụ chạy thử."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 2.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [],
+  "batch_id": "B-001"
+}

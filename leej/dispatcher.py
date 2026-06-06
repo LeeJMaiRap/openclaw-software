@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
-"""LeeJ Worker Dispatcher Sprint 1: prepare OpenClaw agentTurn dispatch payload."""
+"""LeeJ Worker Dispatcher: prepare OpenClaw agentTurn dispatch payloads."""
 
 from __future__ import annotations
 
 import argparse
 import json
-import sys
+import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+TASKS_DIR = REPO_ROOT / "tasks"
 LOG_DIR = REPO_ROOT / "vaults" / "openclaw-ai" / "03-logs"
-TASK_LOG_DIR = REPO_ROOT / "vaults" / "openclaw-ai" / "01-tasks"
+OUTPUT_DIR = REPO_ROOT / "vaults" / "openclaw-ai" / "02-outputs"
 
 MODEL_BY_WORKER = {
     "claude-cli": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
     "codex-cli": "gpt-gmn-token-tunel/cx/gpt-5.3-codex-high",
     "hermes": "gpt-gmn-token-tunel/cx/gpt-5.4",
 }
-
 DISPLAY_MODEL_PREFIX = "gpt-gmn-token-tunel/"
 
 
@@ -28,35 +29,43 @@ def utc_now() -> str:
 
 
 def display_model(model: str) -> str:
-    if model.startswith(DISPLAY_MODEL_PREFIX):
-        return model[len(DISPLAY_MODEL_PREFIX):]
-    return model
+    return model[len(DISPLAY_MODEL_PREFIX):] if model.startswith(DISPLAY_MODEL_PREFIX) else model
 
 
 def load_task(path: Path) -> dict[str, Any]:
     try:
-        with path.open("r", encoding="utf-8") as f:
-            task = json.load(f)
+        task = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         raise SystemExit(f"❌ Lỗi: Không tìm thấy task file: {path}")
     except json.JSONDecodeError as exc:
         raise SystemExit(f"❌ Lỗi: JSON không hợp lệ dòng {exc.lineno}, cột {exc.colno}: {exc.msg}")
 
-    required = ["task_id", "project", "goal", "acceptance_criteria", "constraints", "worker", "timeout_minutes"]
+    required = [
+        "task_id", "project", "goal", "acceptance_criteria", "constraints",
+        "worker", "timeout_minutes", "depends_on",
+    ]
     for field in required:
         if field not in task:
             raise SystemExit(f"❌ Lỗi: Thiếu field bắt buộc: {field}")
     return task
 
 
+def task_path(task_id: str) -> Path:
+    return TASKS_DIR / f"{task_id}.json"
+
+
 def worker_message(task: dict[str, Any]) -> str:
     task_id = task["task_id"]
     criteria = "\n".join(f"{i}. {item}" for i, item in enumerate(task["acceptance_criteria"], 1))
     constraints = "\n".join(f"- {item}" for item in task["constraints"])
+    depends_on = task.get("depends_on", [])
+    deps = ", ".join(depends_on) if depends_on else "none"
     return f"""[OpenClaw Worker Task]
 
 Task ID: {task_id}
 Project: {task['project']}
+Batch ID: {task.get('batch_id', 'N/A')}
+Depends on: {deps}
 
 Goal:
 {task['goal']}
@@ -71,14 +80,19 @@ Output requirements:
 - Write final output to: vaults/openclaw-ai/02-outputs/{task_id}-output.md
 - Write completion log to: vaults/openclaw-ai/03-logs/{task_id}-done.md
 - Keep response concise and include verification notes.
+
+IMPORTANT: All output files must be written to absolute path:
+/data/workspace/openclaw-ai/
+Example:
+- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/{task_id}-output.md
+- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/{task_id}-done.md
 """
 
 
-def build_dispatch(task: dict[str, Any], task_path: Path) -> dict[str, Any]:
+def build_dispatch(task: dict[str, Any], path: Path) -> dict[str, Any]:
     task_id = task["task_id"]
     worker = task["worker"]
     session_name = f"worker-{task_id}"
-
     if worker == "manual":
         return {
             "task_id": task_id,
@@ -88,13 +102,11 @@ def build_dispatch(task: dict[str, Any], task_path: Path) -> dict[str, Any]:
             "sessionName": None,
             "timeoutSeconds": None,
             "message": None,
-            "taskPath": str(task_path),
+            "taskPath": str(path),
             "manualPath": f"vaults/openclaw-ai/01-tasks/{task_id}.md",
         }
-
     if worker not in MODEL_BY_WORKER:
         raise SystemExit(f"❌ Lỗi: Worker không hỗ trợ: {worker}")
-
     model = MODEL_BY_WORKER[worker]
     timeout_seconds = int(task["timeout_minutes"]) * 60
     message = worker_message(task)
@@ -106,7 +118,7 @@ def build_dispatch(task: dict[str, Any], task_path: Path) -> dict[str, Any]:
         "sessionName": session_name,
         "timeoutSeconds": timeout_seconds,
         "message": message,
-        "taskPath": str(task_path),
+        "taskPath": str(path),
         "cronPayload": {
             "sessionTarget": f"session:{session_name}",
             "payload": {
@@ -140,7 +152,6 @@ def write_log(dispatch: dict[str, Any], spawn_status: str = "prepared", job_id: 
 """
     if job_id:
         content += f"- Cron job id: {job_id}\n"
-
     if dispatch["worker"] == "manual":
         content += f"\n## Manual handling\n\nCheck: `{dispatch['manualPath']}`\n"
     else:
@@ -150,27 +161,152 @@ def write_log(dispatch: dict[str, Any], spawn_status: str = "prepared", job_id: 
     return log_path
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Prepare an OpenClaw worker dispatch payload.")
-    parser.add_argument("task_file", help="Path to task JSON file.")
-    args = parser.parse_args()
+def acquire_lock(lock_path: Path, timeout_seconds: int = 5) -> int:
+    start = time.time()
+    while True:
+        try:
+            return os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            if time.time() - start > timeout_seconds:
+                try:
+                    if time.time() - lock_path.stat().st_mtime > 60:
+                        lock_path.unlink()
+                        continue
+                except FileNotFoundError:
+                    continue
+                raise SystemExit(f"❌ Lỗi: Không lấy được lockfile: {lock_path}")
+            time.sleep(0.1)
 
-    task_path = Path(args.task_file)
-    if not task_path.is_absolute():
-        task_path = REPO_ROOT / task_path
 
-    task = load_task(task_path)
-    dispatch = build_dispatch(task, task_path)
+def append_batch_log(batch_id: str, text: str) -> None:
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    log_path = LOG_DIR / f"{batch_id}-batch.md"
+    lock_path = LOG_DIR / f"{batch_id}-batch.md.lock"
+    fd = acquire_lock(lock_path)
+    try:
+        os.write(fd, f"pid={os.getpid()}\n".encode("utf-8"))
+        with log_path.open("a", encoding="utf-8") as f:
+            f.write(text)
+    finally:
+        os.close(fd)
+        try:
+            lock_path.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def load_batch_tasks(batch_id: str) -> list[dict[str, Any]]:
+    tasks: list[dict[str, Any]] = []
+    for path in sorted(TASKS_DIR.glob("TASK-*.json")):
+        task = load_task(path)
+        if task.get("batch_id") == batch_id:
+            task["_path"] = path
+            tasks.append(task)
+    if not tasks:
+        raise SystemExit(f"❌ Lỗi: Không tìm thấy task cho batch_id {batch_id}")
+    return tasks
+
+
+def validate_graph(tasks: list[dict[str, Any]]) -> None:
+    ids = {task["task_id"] for task in tasks}
+    for task in tasks:
+        for dep in task.get("depends_on", []):
+            if dep not in ids:
+                raise SystemExit(f"❌ Lỗi: {task['task_id']} depends_on ngoài batch: {dep}")
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+    deps_by_id = {task["task_id"]: task.get("depends_on", []) for task in tasks}
+
+    def visit(task_id: str) -> None:
+        if task_id in visiting:
+            raise SystemExit(f"❌ Lỗi: dependency graph có cycle tại {task_id}")
+        if task_id in visited:
+            return
+        visiting.add(task_id)
+        for dep in deps_by_id[task_id]:
+            visit(dep)
+        visiting.remove(task_id)
+        visited.add(task_id)
+
+    for task_id in ids:
+        visit(task_id)
+
+
+def compute_waves(tasks: list[dict[str, Any]]) -> list[list[dict[str, Any]]]:
+    remaining = {task["task_id"]: task for task in tasks}
+    done: set[str] = set()
+    waves: list[list[dict[str, Any]]] = []
+    while remaining:
+        ready = [task for task in remaining.values() if set(task.get("depends_on", [])).issubset(done)]
+        if not ready:
+            raise SystemExit("❌ Lỗi: Không thể tạo wave từ dependency graph")
+        ready.sort(key=lambda task: task["task_id"])
+        waves.append(ready)
+        for task in ready:
+            done.add(task["task_id"])
+            remaining.pop(task["task_id"])
+    return waves
+
+
+def run_single(task_file: str) -> int:
+    path = Path(task_file)
+    if not path.is_absolute():
+        path = REPO_ROOT / path
+    task = load_task(path)
+    dispatch = build_dispatch(task, path)
     write_log(dispatch)
-
     if dispatch["worker"] == "manual":
         print(f"⏸ {dispatch['task_id']} cần xử lý thủ công. Kiểm tra:")
         print(dispatch["manualPath"])
         return 0
-
     print(json.dumps(dispatch, ensure_ascii=False, indent=2))
     print(f"✅ Dispatch payload ready: {dispatch['sessionName']} | model: {display_model(dispatch['model'])}")
     return 0
+
+
+def run_batch(batch_id: str) -> int:
+    tasks = load_batch_tasks(batch_id)
+    validate_graph(tasks)
+    waves = compute_waves(tasks)
+    batch_timeout = max(int(task["timeout_minutes"]) for task in tasks)
+    total = len(tasks)
+
+    log_path = LOG_DIR / f"{batch_id}-batch.md"
+    if log_path.exists():
+        log_path.unlink()
+    append_batch_log(batch_id, f"# {batch_id} — Batch dispatch log\n\n- Created at: {utc_now()}\n- Tasks: {total}\n- Batch timeout minutes: {batch_timeout}\n\n")
+
+    dispatched = 0
+    for index, wave in enumerate(waves, 1):
+        prefix = f"🚀 Batch {batch_id}: dispatching wave {index} ({len(wave)} tasks)" if index == 1 else f"🚀 dispatching wave {index} ({len(wave)} task{'s' if len(wave) != 1 else ''})"
+        print(prefix)
+        append_batch_log(batch_id, f"## Wave {index} prepared\n\n- Timestamp: {utc_now()}\n- Task count: {len(wave)}\n\n")
+        for task in wave:
+            path = task.get("_path", task_path(task["task_id"]))
+            dispatch = build_dispatch(task, Path(path))
+            write_log(dispatch)
+            append_batch_log(batch_id, f"- {task['task_id']} → {dispatch.get('sessionName')} | {display_model(dispatch['model']) if dispatch.get('model') else 'manual'} | status: prepared\n")
+            print(f"   → {dispatch['sessionName']} | {display_model(dispatch['model'])}")
+            dispatched += 1
+        append_batch_log(batch_id, "\n")
+        print(f"⏳ Polling wave {index}...")
+    print(f"✅ Batch {batch_id} prepared: {dispatched}/{total} tasks")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Prepare OpenClaw worker dispatch payloads.")
+    parser.add_argument("task_file", nargs="?", help="Path to task JSON file.")
+    parser.add_argument("--batch", dest="batch_id", help="Prepare dispatch waves for a batch id.")
+    args = parser.parse_args()
+
+    if args.batch_id:
+        return run_batch(args.batch_id)
+    if not args.task_file:
+        print("❌ Lỗi: Cần task file hoặc --batch B-xxx")
+        return 2
+    return run_single(args.task_file)
 
 
 if __name__ == "__main__":

@@ -14,20 +14,25 @@
     "context_files",
     "worker",
     "priority",
-    "timeout_minutes"
+    "timeout_minutes",
+    "depends_on"
   ],
   "properties": {
     "task_id": {
       "type": "string",
       "description": "Unique task identifier.",
       "pattern": "^TASK-[0-9]{3,}$",
-      "examples": ["TASK-001"]
+      "examples": [
+        "TASK-001"
+      ]
     },
     "project": {
       "type": "string",
       "description": "Project slug or name.",
       "minLength": 1,
-      "examples": ["openclaw-ai"]
+      "examples": [
+        "openclaw-ai"
+      ]
     },
     "goal": {
       "type": "string",
@@ -75,13 +80,31 @@
     "priority": {
       "type": "string",
       "description": "Task priority.",
-      "enum": ["low", "medium", "high"]
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
     },
     "timeout_minutes": {
       "type": "integer",
       "description": "Maximum execution time for the worker.",
       "minimum": 1,
       "maximum": 1440
+    },
+    "depends_on": {
+      "type": "array",
+      "description": "Task IDs that must be completed before this task can be dispatched.",
+      "items": {
+        "type": "string",
+        "pattern": "^TASK-[0-9]{3,}$"
+      },
+      "default": []
+    },
+    "batch_id": {
+      "type": "string",
+      "description": "Optional batch identifier for tasks created from the same large request.",
+      "pattern": "^B-[0-9]{3,}$"
     }
   }
 }

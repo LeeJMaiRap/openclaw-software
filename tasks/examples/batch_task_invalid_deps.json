@@ -1,0 +1,17 @@
+{
+  "task_id": "TASK-004",
+  "project": "openclaw-ai",
+  "goal": "Viết unit test có dependency lỗi để kiểm tra validator semantic.",
+  "acceptance_criteria": [
+    "Validator phát hiện self-dependency."
+  ],
+  "constraints": [
+    "This file should fail validation."
+  ],
+  "context_files": [],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": ["TASK-004"],
+  "batch_id": "B-001"
+}
