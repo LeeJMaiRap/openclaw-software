@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-010",
+  "project": "openclaw-ai",
+  "goal": "Viết hàm Python is_prime(n) để kiểm tra một số nguyên có phải số nguyên tố hay không.",
+  "acceptance_criteria": [
+    "Hàm is_prime(n) trả về False cho n < 2, gồm n=0, n=1 và số âm.",
+    "Hàm is_prime(n) trả về True cho các số nguyên tố ví dụ 2, 3, 17 và False cho hợp số ví dụ 4, 9, 21.",
+    "Code chạy được không có lỗi runtime và có ví dụ chạy thử ngắn."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 4.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [],
+  "batch_id": "B-003"
+}

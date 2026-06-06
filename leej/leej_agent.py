@@ -330,8 +330,64 @@ def build_temperature_test_task(task_id: str, batch_id: str, dependency_ids: lis
         "batch_id": batch_id,
     }
 
+def build_prime_task(task_id: str, batch_id: str) -> dict[str, object]:
+    return {
+        "task_id": task_id,
+        "project": "openclaw-ai",
+        "goal": "Viết hàm Python is_prime(n) để kiểm tra một số nguyên có phải số nguyên tố hay không.",
+        "acceptance_criteria": [
+            "Hàm is_prime(n) trả về False cho n < 2, gồm n=0, n=1 và số âm.",
+            "Hàm is_prime(n) trả về True cho các số nguyên tố ví dụ 2, 3, 17 và False cho hợp số ví dụ 4, 9, 21.",
+            "Code chạy được không có lỗi runtime và có ví dụ chạy thử ngắn.",
+        ],
+        "constraints": [
+            "Keep the solution simple for Sprint 4.",
+            "Write output in Vietnamese unless the task requires another language.",
+        ],
+        "context_files": ["docs/architecture/openclaw_knowledge_base_v2.txt"],
+        "worker": "claude-cli",
+        "priority": "high",
+        "timeout_minutes": 30,
+        "depends_on": [],
+        "batch_id": batch_id,
+    }
+
+def build_prime_test_task(task_id: str, batch_id: str, dependency_ids: list[str]) -> dict[str, object]:
+    return {
+        "task_id": task_id,
+        "project": "openclaw-ai",
+        "goal": "Viết unit test cho hàm is_prime(n) kiểm tra số nguyên tố.",
+        "acceptance_criteria": [
+            "Unit test kiểm tra is_prime(n) trả về False cho n < 2, gồm n=0, n=1 và số âm.",
+            "Unit test kiểm tra is_prime(n) trả về True cho số nguyên tố 2, 3, 17 và False cho hợp số 4, 9, 21.",
+            "Test suite chạy được bằng Python standard library unittest hoặc pytest-style assertions.",
+        ],
+        "constraints": [
+            "Keep the solution simple for Sprint 4.",
+            "Use Python standard library unittest or pytest-style assertions.",
+            "Write output in Vietnamese unless the task requires another language.",
+        ],
+        "context_files": [f"tasks/{dep}.json" for dep in dependency_ids],
+        "worker": "claude-cli",
+        "priority": "high",
+        "timeout_minutes": 30,
+        "depends_on": dependency_ids,
+        "batch_id": batch_id,
+    }
+
 def build_batch_tasks(request: str) -> tuple[str, list[dict[str, object]]]:
     text = request.lower()
+
+    if "số nguyên tố" in text or "so nguyen to" in text or "prime" in text or "is_prime" in text:
+        wants_tests = "unit test" in text or "test" in text
+        task_count = 1 + (1 if wants_tests else 0)
+        task_ids = next_task_ids(task_count)
+        batch_id = next_batch_id()
+        tasks: list[dict[str, object]] = [build_prime_task(task_ids[0], batch_id)]
+        if wants_tests:
+            dependency_ids = [str(task["task_id"]) for task in tasks]
+            tasks.append(build_prime_test_task(task_ids[-1], batch_id, dependency_ids))
+        return batch_id, tasks
 
     temperature_keys: list[str] = []
     if "celsius_to_fahrenheit" in text or "c sang f" in text or "c to f" in text:

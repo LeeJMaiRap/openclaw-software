@@ -1,0 +1,62 @@
+{
+  "batch_id": "B-003",
+  "created_at": "2026-06-06T20:47:34Z",
+  "status": "prepared",
+  "poll_interval_seconds": 15,
+  "timeout_minutes": 30,
+  "waves": [
+    {
+      "wave": 1,
+      "jobs": [
+        {
+          "task_id": "TASK-010",
+          "name": "worker-TASK-010",
+          "sessionTarget": "session:worker-TASK-010",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1800,
+          "payload": {
+            "sessionTarget": "session:worker-TASK-010",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-010\nProject: openclaw-ai\nBatch ID: B-003\nDepends on: none\n\nGoal:\nViết hàm Python is_prime(n) để kiểm tra một số nguyên có phải số nguyên tố hay không.\n\nAcceptance criteria:\n1. Hàm is_prime(n) trả về False cho n < 2, gồm n=0, n=1 và số âm.\n2. Hàm is_prime(n) trả về True cho các số nguyên tố ví dụ 2, 3, 17 và False cho hợp số ví dụ 4, 9, 21.\n3. Code chạy được không có lỗi runtime và có ví dụ chạy thử ngắn.\n\nConstraints:\n- Keep the solution simple for Sprint 4.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-010-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-010-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-010-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-010-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        }
+      ]
+    },
+    {
+      "wave": 2,
+      "jobs": [
+        {
+          "task_id": "TASK-011",
+          "name": "worker-TASK-011",
+          "sessionTarget": "session:worker-TASK-011",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1800,
+          "payload": {
+            "sessionTarget": "session:worker-TASK-011",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-011\nProject: openclaw-ai\nBatch ID: B-003\nDepends on: TASK-010\n\nGoal:\nViết unit test cho hàm is_prime(n) kiểm tra số nguyên tố.\n\nAcceptance criteria:\n1. Unit test kiểm tra is_prime(n) trả về False cho n < 2, gồm n=0, n=1 và số âm.\n2. Unit test kiểm tra is_prime(n) trả về True cho số nguyên tố 2, 3, 17 và False cho hợp số 4, 9, 21.\n3. Test suite chạy được bằng Python standard library unittest hoặc pytest-style assertions.\n\nConstraints:\n- Keep the solution simple for Sprint 4.\n- Use Python standard library unittest or pytest-style assertions.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-011-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-011-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-011-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-011-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "checker": {
+    "command": [
+      "python3",
+      "leej/checker.py",
+      "--batch",
+      "B-003"
+    ]
+  },
+  "report_path": "vaults/openclaw-ai/03-logs/B-003-pipeline.md"
+}

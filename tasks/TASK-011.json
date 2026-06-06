@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-011",
+  "project": "openclaw-ai",
+  "goal": "Viết unit test cho hàm is_prime(n) kiểm tra số nguyên tố.",
+  "acceptance_criteria": [
+    "Unit test kiểm tra is_prime(n) trả về False cho n < 2, gồm n=0, n=1 và số âm.",
+    "Unit test kiểm tra is_prime(n) trả về True cho số nguyên tố 2, 3, 17 và False cho hợp số 4, 9, 21.",
+    "Test suite chạy được bằng Python standard library unittest hoặc pytest-style assertions."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 4.",
+    "Use Python standard library unittest or pytest-style assertions.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "tasks/TASK-010.json"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-010"
+  ],
+  "batch_id": "B-003"
+}

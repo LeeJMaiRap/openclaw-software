@@ -17,8 +17,8 @@ LOG_DIR = REPO_ROOT / "vaults" / "openclaw-ai" / "03-logs"
 OUTPUT_DIR = REPO_ROOT / "vaults" / "openclaw-ai" / "02-outputs"
 
 MODEL_BY_WORKER = {
-    "claude-cli": "gpt-gmn-token-tunel/cx/gpt-5.3-codex",
-    "codex-cli": "gpt-gmn-token-tunel/cx/gpt-5.3-codex-high",
+    "claude-cli": "gpt-gmn-token-tunel/cx/gpt-5.5",
+    "codex-cli": "gpt-gmn-token-tunel/cx/gpt-5.4",
     "hermes": "gpt-gmn-token-tunel/cx/gpt-5.4",
 }
 DISPLAY_MODEL_PREFIX = "gpt-gmn-token-tunel/"
