@@ -1,0 +1,20 @@
+{
+  "task_id": "TASK-001",
+  "project": "openclaw-ai",
+  "goal": "Viết hàm Python tính số Fibonacci thứ n",
+  "acceptance_criteria": [
+    "Hàm fibonacci(n) trả về đúng giá trị cho n=0, n=1, n=5 và n=10.",
+    "Code chạy được không có lỗi runtime.",
+    "Output có ví dụ chạy thử và giải thích ngắn cách hoạt động."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 1.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30
+}
