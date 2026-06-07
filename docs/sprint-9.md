@@ -180,13 +180,23 @@ Feature request template includes:
 
 ## Security notes
 
-GitHub PAT was used for push and then removed from remote URL.
+GitHub PAT was used for the first push and then removed from the remote URL.
 
-Remote URL after push:
+SSH push was configured after the first push.
+
+SSH identity inside the container:
 
 ```text
-https://github.com/LeeJMaiRap/openclaw-software.git
+/root/.ssh/openclaw_github
 ```
+
+Remote URL after SSH setup:
+
+```text
+git@github.com:LeeJMaiRap/openclaw-software.git
+```
+
+From now on, `git push` from the container does not need a PAT.
 
 Sensitive files remain ignored and untracked:
 
