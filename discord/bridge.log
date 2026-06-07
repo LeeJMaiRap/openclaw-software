@@ -1,5 +1,0 @@
-discord-bridge starting | workdir=/data/workspace/openclaw-ai input=1513057505113280622 output=1513057557596602378
-[30;1m2026-06-07 06:01:11[0m [34;1mINFO    [0m [35mdiscord.client[0m logging in using static token
-[30;1m2026-06-07 06:01:12[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has connected to Gateway (Session ID: 2b842f24dd44b1cfb78f78c964c2afa8).
-Logged in as bot123#0994
-Bridge ready. Listening... guild=1513047758636978256 input=1513057505113280622 output=1513057557596602378

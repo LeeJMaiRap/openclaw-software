@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-031",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test kiểm tra tính đúng đắn của hàm factorial cho các trường hợp tiêu biểu.",
+  "acceptance_criteria": [
+    "Có file unit test riêng cho hàm factorial",
+    "Test bao phủ ít nhất các trường hợp 0, 1, 5",
+    "Toàn bộ test chạy pass với hàm đã viết",
+    "Test có thể chạy bằng framework unit test chuẩn của Python"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 20,
+  "depends_on": [
+    "TASK-030"
+  ],
+  "batch_id": "B-009"
+}

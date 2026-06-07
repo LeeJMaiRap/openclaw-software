@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-030",
+  "project": "openclaw-ai",
+  "goal": "Tạo hàm Python tính giai thừa bằng đệ quy, trả về kết quả đúng cho đầu vào hợp lệ.",
+  "acceptance_criteria": [
+    "Có hàm Python tên factorial",
+    "Hàm dùng lời gọi đệ quy để tính n!",
+    "factorial(0) trả về 1 và factorial(1) trả về 1",
+    "factorial(5) trả về 120"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 20,
+  "depends_on": [
+    "TASK-029"
+  ],
+  "batch_id": "B-009"
+}

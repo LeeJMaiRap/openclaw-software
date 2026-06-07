@@ -11,10 +11,12 @@ Sprint 7 behavior:
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import re
 import subprocess
 import tempfile
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Final
 
@@ -27,6 +29,9 @@ except ImportError:  # pragma: no cover - direct script execution fallback
     import store  # type: ignore
 
 WORKDIR: Final[Path] = Path(os.environ.get("OPENCLAW_PROJECT_DIR", "/data/workspace/openclaw-ai"))
+LOG_PATH: Final[Path] = WORKDIR / "discord" / "bridge.log"
+LOG_MAX_BYTES: Final[int] = 5 * 1024 * 1024
+LOG_BACKUP_COUNT: Final[int] = 3
 DISCORD_LIMIT: Final[int] = 2000
 SAFE_TEXT_LIMIT: Final[int] = 1800
 COMMAND_RE: Final[re.Pattern[str]] = re.compile(r'^!run\s+"(?P<request>.+)"\s*$', re.DOTALL)
@@ -34,6 +39,26 @@ PROJECT_CREATE_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+create\s+(?
 PROJECT_DONE_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+done\s+(?P<name>.+)$", re.DOTALL)
 PROJECT_LIST_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+list\s*$")
 PROJECT_RUN_ROLE: Final[str] = "leej"
+
+logger = logging.getLogger("openclaw.discord.bridge")
+
+
+def configure_logging() -> None:
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
+    handler = RotatingFileHandler(
+        LOG_PATH,
+        maxBytes=LOG_MAX_BYTES,
+        backupCount=LOG_BACKUP_COUNT,
+        encoding="utf-8",
+    )
+    handler.setFormatter(formatter)
+
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    root.handlers.clear()
+    root.addHandler(handler)
+
 
 class ConfigError(RuntimeError):
     pass
@@ -251,11 +276,12 @@ async def handle_run(message: discord.Message, request: str) -> None:
 
 @client.event
 async def on_ready() -> None:
-    print(f"Logged in as {client.user}", flush=True)
-    print(
-        "Bridge ready. Listening... "
-        f"guild={GUILD_ID} input={INPUT_CHANNEL_ID} output={OUTPUT_CHANNEL_ID}",
-        flush=True,
+    logger.info("Logged in as %s", client.user)
+    logger.info(
+        "Bridge ready. Listening... guild=%s input=%s output=%s",
+        GUILD_ID,
+        INPUT_CHANNEL_ID,
+        OUTPUT_CHANNEL_ID,
     )
 
 @client.event
@@ -287,13 +313,15 @@ async def on_message(message: discord.Message) -> None:
         return
 
 def main() -> None:
+    configure_logging()
     if not WORKDIR.exists():
         raise ConfigError(f"Project directory does not exist: {WORKDIR}")
     store.init_db()
-    print(
-        "discord-bridge starting | "
-        f"workdir={WORKDIR} input={INPUT_CHANNEL_ID} output={OUTPUT_CHANNEL_ID}",
-        flush=True,
+    logger.info(
+        "discord-bridge starting | workdir=%s input=%s output=%s",
+        WORKDIR,
+        INPUT_CHANNEL_ID,
+        OUTPUT_CHANNEL_ID,
     )
     client.run(TOKEN)
 

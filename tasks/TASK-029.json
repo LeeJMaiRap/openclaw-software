@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-029",
+  "project": "openclaw-ai",
+  "goal": "Xác định rõ phạm vi hàm Python tính giai thừa bằng đệ quy và hành vi mong đợi để làm đầu vào cho bước code.",
+  "acceptance_criteria": [
+    "Nêu rõ hàm nhận đầu vào là số nguyên không âm",
+    "Nêu rõ kết quả đúng cho các trường hợp cơ bản như 0! và 1!",
+    "Nêu rõ hàm phải dùng đệ quy, không dùng vòng lặp"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "hermes",
+  "priority": "high",
+  "timeout_minutes": 10,
+  "depends_on": [],
+  "batch_id": "B-009"
+}
