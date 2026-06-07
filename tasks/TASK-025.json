@@ -1,0 +1,24 @@
+{
+  "task_id": "TASK-025",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test kiểm tra tính đúng đắn của hàm đảo ngược chuỗi với các trường hợp phổ biến và biên",
+  "acceptance_criteria": [
+    "Có test cho ít nhất 4 trường hợp: chuỗi thường, chuỗi rỗng, 1 ký tự, chuỗi có khoảng trắng hoặc ký tự đặc biệt",
+    "Tất cả test pass khi chạy với hàm đã viết",
+    "Test độc lập và có thể chạy bằng framework test Python phổ biến"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 20,
+  "depends_on": [
+    "TASK-024"
+  ],
+  "batch_id": "B-007"
+}
