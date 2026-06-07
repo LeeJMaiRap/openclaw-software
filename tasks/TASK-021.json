@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-021",
+  "project": "openclaw-ai",
+  "goal": "Xây dựng module todo list hỗ trợ thêm, xóa, đánh dấu hoàn thành và lưu dữ liệu vào file JSON theo thiết kế đã thống nhất.",
+  "acceptance_criteria": [
+    "Có thể thêm mới một todo và lưu trong danh sách ở bộ nhớ",
+    "Có thể xóa todo theo id hoặc khóa định danh đã chọn trong thiết kế",
+    "Có thể đánh dấu hoàn thành cho một todo đang tồn tại",
+    "Có chức năng ghi danh sách todo ra file JSON và đọc lại đúng cấu trúc"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-020"
+  ],
+  "batch_id": "B-006"
+}

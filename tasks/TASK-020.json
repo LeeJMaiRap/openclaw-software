@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-020",
+  "project": "openclaw-ai",
+  "goal": "Xác định cấu trúc dữ liệu todo, API module và quy tắc lưu/đọc file JSON cho các chức năng thêm, xóa, đánh dấu hoàn thành.",
+  "acceptance_criteria": [
+    "Mô tả rõ các trường của một todo item, gồm tối thiểu id, nội dung, trạng thái hoàn thành",
+    "Liệt kê đầy đủ các hàm hoặc method cần có cho thêm, xóa, đánh dấu hoàn thành, lưu file, đọc file",
+    "Nêu rõ định dạng file JSON đầu ra và cách xử lý khi file chưa tồn tại hoặc rỗng"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "hermes",
+  "priority": "high",
+  "timeout_minutes": 20,
+  "depends_on": [],
+  "batch_id": "B-006"
+}

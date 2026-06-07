@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-019",
+  "project": "openclaw-ai",
+  "goal": "Tổng hợp kết quả benchmark và giải thích khác biệt về độ phức tạp, hiệu năng thực tế, ưu nhược điểm của 2 thuật toán",
+  "acceptance_criteria": [
+    "Có so sánh độ phức tạp thời gian trung bình và trường hợp xấu nhất của cả 2 thuật toán",
+    "Có nhận xét dựa trên kết quả benchmark đã chạy",
+    "Kết luận nêu khi nào nên dùng quick sort và vì sao bubble sort kém hiệu quả hơn trong đa số trường hợp"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "hermes",
+  "priority": "medium",
+  "timeout_minutes": 25,
+  "depends_on": [
+    "TASK-018",
+    "TASK-017"
+  ],
+  "batch_id": "B-005"
+}

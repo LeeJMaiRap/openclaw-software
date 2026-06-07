@@ -1,0 +1,24 @@
+{
+  "task_id": "TASK-014",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test kiểm tra hành vi chính của script với dữ liệu CSV mẫu cho cột số và cột không phải số.",
+  "acceptance_criteria": [
+    "Có test cho trường hợp CSV gồm nhiều cột số và kết quả tổng đúng từng cột.",
+    "Có test cho trường hợp CSV có cột chữ và cột đó bị bỏ qua.",
+    "Tất cả test chạy pass bằng framework test Python được chọn."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "medium",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-013"
+  ],
+  "batch_id": "B-004"
+}

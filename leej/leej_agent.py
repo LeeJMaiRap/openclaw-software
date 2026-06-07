@@ -18,6 +18,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from llm_client import LLMClientError, complete
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TASKS_DIR = REPO_ROOT / "tasks"
 TASK_LOG_DIR = REPO_ROOT / "vaults" / "openclaw-ai" / "01-tasks"
@@ -375,63 +377,166 @@ def build_prime_test_task(task_id: str, batch_id: str, dependency_ids: list[str]
         "batch_id": batch_id,
     }
 
+def build_llm_batch_prompt(request: str) -> str:
+    return f'''Bạn là LeeJ Agent — PM của hệ thống OpenClaw AI.
+Nhiệm vụ: phân tích yêu cầu và chia thành danh sách task
+cho các Worker thực thi.
+
+Yêu cầu từ user:
+"{request}"
+
+Trả về JSON ONLY, không có text khác, theo schema sau:
+{{
+  "tasks": [
+    {{
+      "title": "tên ngắn gọn",
+      "goal": "mô tả rõ ràng, có thể đo lường được",
+      "acceptance_criteria": [
+        "tiêu chí cụ thể, có thể kiểm tra được",
+        "..."
+      ],
+      "worker": "claude-cli|codex-cli|hermes|manual",
+      "depends_on_titles": [],
+      "priority": "low|medium|high",
+      "timeout_minutes": 30
+    }}
+  ]
+}}
+
+Quy tắc chia task:
+- Mỗi task là 1 đơn vị công việc độc lập hoặc có dependency rõ ràng
+- Unit test luôn là task riêng, phụ thuộc task code
+- Tối đa 6 tasks cho 1 yêu cầu
+- worker = claude-cli cho code task
+- worker = hermes cho phân tích, so sánh, lý luận
+- worker = manual nếu cần human quyết định
+- acceptance_criteria: tối thiểu 2, tối đa 4 mục
+- Trả về JSON thuần, không markdown, không backtick'''
+
+def build_retry_prompt(request: str) -> str:
+    return f'''Return JSON only. No markdown. No backticks.
+Split this user request into at most 6 executable tasks for OpenClaw AI Workers:
+"{request}"
+
+Schema:
+{{"tasks":[{{"title":"short unique title","goal":"measurable goal","acceptance_criteria":["checkable criterion 1","checkable criterion 2"],"worker":"claude-cli","depends_on_titles":[],"priority":"high","timeout_minutes":30}}]}}
+
+Rules:
+- Code tasks use worker claude-cli.
+- Analysis/reasoning tasks use worker hermes.
+- Human decision tasks use worker manual.
+- Unit test must be a separate task depending on code task titles.
+- depends_on_titles must reference exact title strings from earlier tasks.
+- JSON only.'''
+
+def parse_llm_task_plan(content: str) -> list[dict[str, object]]:
+    try:
+        payload = json.loads(content)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"LLM JSON parse failed: line {exc.lineno} col {exc.colno}: {exc.msg}") from exc
+
+    if not isinstance(payload, dict):
+        raise ValueError("LLM response must be a JSON object")
+    raw_tasks = payload.get("tasks")
+    if not isinstance(raw_tasks, list):
+        raise ValueError("LLM response missing tasks list")
+    if not 1 <= len(raw_tasks) <= 6:
+        raise ValueError("LLM tasks count must be between 1 and 6")
+
+    allowed_workers = {"claude-cli", "codex-cli", "hermes", "manual"}
+    allowed_priorities = {"low", "medium", "high"}
+    titles: set[str] = set()
+    normalized: list[dict[str, object]] = []
+
+    for index, item in enumerate(raw_tasks, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"tasks[{index}] must be an object")
+        title = item.get("title")
+        goal = item.get("goal")
+        criteria = item.get("acceptance_criteria")
+        worker = item.get("worker")
+        depends = item.get("depends_on_titles", [])
+        priority = item.get("priority")
+        timeout = item.get("timeout_minutes")
+
+        if not isinstance(title, str) or not title.strip():
+            raise ValueError(f"tasks[{index}].title missing")
+        title = title.strip()
+        if title in titles:
+            raise ValueError(f"duplicate task title: {title}")
+        titles.add(title)
+
+        if not isinstance(goal, str) or not goal.strip():
+            raise ValueError(f"tasks[{index}].goal missing")
+        if not isinstance(criteria, list) or not 2 <= len(criteria) <= 4 or not all(isinstance(c, str) and c.strip() for c in criteria):
+            raise ValueError(f"tasks[{index}].acceptance_criteria must contain 2..4 strings")
+        if worker not in allowed_workers:
+            raise ValueError(f"tasks[{index}].worker invalid: {worker}")
+        if not isinstance(depends, list) or not all(isinstance(dep, str) and dep.strip() for dep in depends):
+            raise ValueError(f"tasks[{index}].depends_on_titles must be a list of strings")
+        if priority not in allowed_priorities:
+            raise ValueError(f"tasks[{index}].priority invalid: {priority}")
+        if not isinstance(timeout, int) or timeout <= 0:
+            raise ValueError(f"tasks[{index}].timeout_minutes must be a positive integer")
+
+        normalized.append({
+            "title": title,
+            "goal": goal.strip(),
+            "acceptance_criteria": [str(c).strip() for c in criteria],
+            "worker": worker,
+            "depends_on_titles": [str(dep).strip() for dep in depends],
+            "priority": priority,
+            "timeout_minutes": timeout,
+        })
+
+    return normalized
+
+def call_llm_task_planner(request: str) -> list[dict[str, object]]:
+    errors: list[str] = []
+    prompts = [build_llm_batch_prompt(request), build_retry_prompt(request)]
+    for attempt, prompt in enumerate(prompts, start=1):
+        try:
+            content = complete(prompt, timeout=60.0, temperature=0.1, max_tokens=4096)
+            return parse_llm_task_plan(content)
+        except (LLMClientError, ValueError) as exc:
+            errors.append(f"attempt {attempt}: {exc}")
+            print(f"⚠️ LLM task planning attempt {attempt} failed: {exc}", file=sys.stderr)
+    raise ValueError("LLM task planning failed after 2 attempts; no heuristic fallback used. " + " | ".join(errors))
+
 def build_batch_tasks(request: str) -> tuple[str, list[dict[str, object]]]:
-    text = request.lower()
-
-    if "số nguyên tố" in text or "so nguyen to" in text or "prime" in text or "is_prime" in text:
-        wants_tests = "unit test" in text or "test" in text
-        task_count = 1 + (1 if wants_tests else 0)
-        task_ids = next_task_ids(task_count)
-        batch_id = next_batch_id()
-        tasks: list[dict[str, object]] = [build_prime_task(task_ids[0], batch_id)]
-        if wants_tests:
-            dependency_ids = [str(task["task_id"]) for task in tasks]
-            tasks.append(build_prime_test_task(task_ids[-1], batch_id, dependency_ids))
-        return batch_id, tasks
-
-    temperature_keys: list[str] = []
-    if "celsius_to_fahrenheit" in text or "c sang f" in text or "c to f" in text:
-        temperature_keys.append("c_to_f")
-    if "fahrenheit_to_celsius" in text or "f sang c" in text or "f to c" in text:
-        temperature_keys.append("f_to_c")
-    if "celsius_to_kelvin" in text or "c sang k" in text or "c to k" in text:
-        temperature_keys.append("c_to_k")
-    if temperature_keys:
-        wants_tests = "unit test" in text or "test" in text
-        task_count = len(temperature_keys) + (1 if wants_tests else 0)
-        task_ids = next_task_ids(task_count)
-        batch_id = next_batch_id()
-        tasks: list[dict[str, object]] = []
-        for task_id, function_key in zip(task_ids, temperature_keys):
-            tasks.append(build_temperature_task(task_id, batch_id, function_key))
-        if wants_tests:
-            dependency_ids = [str(task["task_id"]) for task in tasks]
-            tasks.append(build_temperature_test_task(task_ids[-1], batch_id, dependency_ids))
-        return batch_id, tasks
-
-    function_keys: list[str] = []
-    if "trung bình" in text or "trung binh" in text:
-        function_keys.append("mean")
-    if "trung vị" in text or "trung vi" in text:
-        function_keys.append("median")
-    if "độ lệch chuẩn" in text or "do lech chuan" in text or "lech chuan" in text:
-        function_keys.append("stddev")
-
-    if not function_keys:
-        raise ValueError("Không nhận diện được chức năng để chia batch")
-
-    wants_tests = "unit test" in text or "test" in text
-    task_count = len(function_keys) + (1 if wants_tests else 0)
-    task_ids = next_task_ids(task_count)
+    llm_tasks = call_llm_task_planner(request)
+    task_ids = next_task_ids(len(llm_tasks))
     batch_id = next_batch_id()
+    title_to_task_id = {str(raw["title"]): task_id for raw, task_id in zip(llm_tasks, task_ids)}
 
     tasks: list[dict[str, object]] = []
-    for task_id, function_key in zip(task_ids, function_keys):
-        tasks.append(build_function_task(task_id, batch_id, function_key))
+    for raw, task_id in zip(llm_tasks, task_ids):
+        depends_on_titles = raw["depends_on_titles"]
+        depends_on: list[str] = []
+        for title in depends_on_titles:
+            if title not in title_to_task_id:
+                raise ValueError(f"Unknown depends_on_title for {raw['title']}: {title}")
+            dep_id = title_to_task_id[str(title)]
+            if dep_id == task_id:
+                raise ValueError(f"Task cannot depend on itself: {raw['title']}")
+            depends_on.append(dep_id)
 
-    if wants_tests:
-        dependency_ids = [str(task["task_id"]) for task in tasks]
-        tasks.append(build_test_task(task_ids[-1], batch_id, dependency_ids))
+        tasks.append({
+            "task_id": task_id,
+            "project": "openclaw-ai",
+            "goal": str(raw["goal"]),
+            "acceptance_criteria": raw["acceptance_criteria"],
+            "constraints": [
+                "Keep the solution simple for Sprint 5.",
+                "Write output in Vietnamese unless the task requires another language.",
+            ],
+            "context_files": ["docs/architecture/openclaw_knowledge_base_v2.txt"],
+            "worker": raw["worker"],
+            "priority": raw["priority"],
+            "timeout_minutes": raw["timeout_minutes"],
+            "depends_on": depends_on,
+            "batch_id": batch_id,
+        })
 
     return batch_id, tasks
 

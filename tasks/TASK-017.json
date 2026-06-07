@@ -1,0 +1,24 @@
+{
+  "task_id": "TASK-017",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test riêng kiểm tra tính đúng đắn của bubble sort và quick sort trên các trường hợp điển hình và biên",
+  "acceptance_criteria": [
+    "Có test cho mảng rỗng, 1 phần tử, đã sắp xếp, đảo ngược và có phần tử trùng lặp",
+    "Cả bubble sort và quick sort đều vượt qua toàn bộ test",
+    "Test được tách thành task riêng và chỉ phụ thuộc task cài đặt mã nguồn"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-016"
+  ],
+  "batch_id": "B-005"
+}

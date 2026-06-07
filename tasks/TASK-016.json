@@ -1,0 +1,24 @@
+{
+  "task_id": "TASK-016",
+  "project": "openclaw-ai",
+  "goal": "Viết mã nguồn cho 2 hàm sắp xếp bubble sort và quick sort, cùng giao diện gọi thống nhất để dùng cho test và benchmark",
+  "acceptance_criteria": [
+    "Có 2 hàm riêng cho bubble sort và quick sort",
+    "Cả 2 hàm trả về kết quả sắp xếp tăng dần đúng với dữ liệu số nguyên đầu vào",
+    "Mã nguồn có thể được import hoặc gọi lại từ module test và benchmark"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-015"
+  ],
+  "batch_id": "B-005"
+}

@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-022",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test kiểm tra đầy đủ các chức năng chính của module todo và hành vi lưu/đọc JSON.",
+  "acceptance_criteria": [
+    "Có test riêng cho thêm todo, xóa todo và đánh dấu hoàn thành",
+    "Có test kiểm tra dữ liệu được lưu ra file JSON đúng cấu trúc mong đợi",
+    "Có test kiểm tra đọc dữ liệu từ file JSON khôi phục đúng danh sách todo",
+    "Toàn bộ unit test chạy pass"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-021"
+  ],
+  "batch_id": "B-006"
+}

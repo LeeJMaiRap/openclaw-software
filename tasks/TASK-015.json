@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-015",
+  "project": "openclaw-ai",
+  "goal": "Xác định phạm vi so sánh bubble sort và quick sort, đầu vào benchmark, chỉ số đo và cấu trúc kết quả cần có để các task code bám theo",
+  "acceptance_criteria": [
+    "Nêu rõ cần có 2 thuật toán: bubble sort và quick sort",
+    "Định nghĩa ít nhất 3 kích thước dữ liệu benchmark và cách sinh dữ liệu đầu vào nhất quán",
+    "Xác định chỉ số đầu ra benchmark gồm thời gian chạy và kiểm tra tính đúng của kết quả sắp xếp"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "hermes",
+  "priority": "high",
+  "timeout_minutes": 20,
+  "depends_on": [],
+  "batch_id": "B-005"
+}

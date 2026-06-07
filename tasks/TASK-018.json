@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-018",
+  "project": "openclaw-ai",
+  "goal": "Tạo mã benchmark chạy bubble sort và quick sort trên cùng bộ dữ liệu, ghi nhận thời gian chạy và xuất kết quả so sánh",
+  "acceptance_criteria": [
+    "Benchmark chạy được cho cả 2 thuật toán trên cùng tập dữ liệu đầu vào",
+    "Kết quả benchmark hiển thị hoặc ghi ra thời gian chạy theo từng kích thước dữ liệu",
+    "Benchmark có bước kiểm tra kết quả sắp xếp hợp lệ trước khi ghi nhận kết quả"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-015",
+    "TASK-016"
+  ],
+  "batch_id": "B-005"
+}

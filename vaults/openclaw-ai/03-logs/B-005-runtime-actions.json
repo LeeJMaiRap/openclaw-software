@@ -1,0 +1,123 @@
+{
+  "batch_id": "B-005",
+  "created_at": "2026-06-07T04:48:35Z",
+  "status": "prepared",
+  "poll_interval_seconds": 15,
+  "timeout_minutes": 30,
+  "waves": [
+    {
+      "wave": 1,
+      "jobs": [
+        {
+          "task_id": "TASK-015",
+          "name": "worker-TASK-015",
+          "sessionTarget": "session:worker-TASK-015",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+          "timeoutSeconds": 1200,
+          "payload": {
+            "sessionTarget": "session:worker-TASK-015",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-015\nProject: openclaw-ai\nBatch ID: B-005\nDepends on: none\n\nGoal:\nXác định phạm vi so sánh bubble sort và quick sort, đầu vào benchmark, chỉ số đo và cấu trúc kết quả cần có để các task code bám theo\n\nAcceptance criteria:\n1. Nêu rõ cần có 2 thuật toán: bubble sort và quick sort\n2. Định nghĩa ít nhất 3 kích thước dữ liệu benchmark và cách sinh dữ liệu đầu vào nhất quán\n3. Xác định chỉ số đầu ra benchmark gồm thời gian chạy và kiểm tra tính đúng của kết quả sắp xếp\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-015-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-015-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-015-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-015-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1200
+            }
+          }
+        }
+      ]
+    },
+    {
+      "wave": 2,
+      "jobs": [
+        {
+          "task_id": "TASK-016",
+          "name": "worker-TASK-016",
+          "sessionTarget": "session:worker-TASK-016",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1800,
+          "payload": {
+            "sessionTarget": "session:worker-TASK-016",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-016\nProject: openclaw-ai\nBatch ID: B-005\nDepends on: TASK-015\n\nGoal:\nViết mã nguồn cho 2 hàm sắp xếp bubble sort và quick sort, cùng giao diện gọi thống nhất để dùng cho test và benchmark\n\nAcceptance criteria:\n1. Có 2 hàm riêng cho bubble sort và quick sort\n2. Cả 2 hàm trả về kết quả sắp xếp tăng dần đúng với dữ liệu số nguyên đầu vào\n3. Mã nguồn có thể được import hoặc gọi lại từ module test và benchmark\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-016-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-016-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-016-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-016-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        }
+      ]
+    },
+    {
+      "wave": 3,
+      "jobs": [
+        {
+          "task_id": "TASK-017",
+          "name": "worker-TASK-017",
+          "sessionTarget": "session:worker-TASK-017",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1800,
+          "payload": {
+            "sessionTarget": "session:worker-TASK-017",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-017\nProject: openclaw-ai\nBatch ID: B-005\nDepends on: TASK-016\n\nGoal:\nTạo bộ unit test riêng kiểm tra tính đúng đắn của bubble sort và quick sort trên các trường hợp điển hình và biên\n\nAcceptance criteria:\n1. Có test cho mảng rỗng, 1 phần tử, đã sắp xếp, đảo ngược và có phần tử trùng lặp\n2. Cả bubble sort và quick sort đều vượt qua toàn bộ test\n3. Test được tách thành task riêng và chỉ phụ thuộc task cài đặt mã nguồn\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-017-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-017-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-017-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-017-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        },
+        {
+          "task_id": "TASK-018",
+          "name": "worker-TASK-018",
+          "sessionTarget": "session:worker-TASK-018",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1800,
+          "payload": {
+            "sessionTarget": "session:worker-TASK-018",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-018\nProject: openclaw-ai\nBatch ID: B-005\nDepends on: TASK-015, TASK-016\n\nGoal:\nTạo mã benchmark chạy bubble sort và quick sort trên cùng bộ dữ liệu, ghi nhận thời gian chạy và xuất kết quả so sánh\n\nAcceptance criteria:\n1. Benchmark chạy được cho cả 2 thuật toán trên cùng tập dữ liệu đầu vào\n2. Kết quả benchmark hiển thị hoặc ghi ra thời gian chạy theo từng kích thước dữ liệu\n3. Benchmark có bước kiểm tra kết quả sắp xếp hợp lệ trước khi ghi nhận kết quả\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-018-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-018-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-018-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-018-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          }
+        }
+      ]
+    },
+    {
+      "wave": 4,
+      "jobs": [
+        {
+          "task_id": "TASK-019",
+          "name": "worker-TASK-019",
+          "sessionTarget": "session:worker-TASK-019",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+          "timeoutSeconds": 1500,
+          "payload": {
+            "sessionTarget": "session:worker-TASK-019",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-019\nProject: openclaw-ai\nBatch ID: B-005\nDepends on: TASK-018, TASK-017\n\nGoal:\nTổng hợp kết quả benchmark và giải thích khác biệt về độ phức tạp, hiệu năng thực tế, ưu nhược điểm của 2 thuật toán\n\nAcceptance criteria:\n1. Có so sánh độ phức tạp thời gian trung bình và trường hợp xấu nhất của cả 2 thuật toán\n2. Có nhận xét dựa trên kết quả benchmark đã chạy\n3. Kết luận nêu khi nào nên dùng quick sort và vì sao bubble sort kém hiệu quả hơn trong đa số trường hợp\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-019-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-019-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-019-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-019-done.md\n",
+              "lightContext": true,
+              "timeoutSeconds": 1500
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "checker": {
+    "command": [
+      "python3",
+      "leej/checker.py",
+      "--batch",
+      "B-005"
+    ]
+  },
+  "report_path": "vaults/openclaw-ai/03-logs/B-005-pipeline.md"
+}

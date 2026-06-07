@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-013",
+  "project": "openclaw-ai",
+  "goal": "Tạo script Python chạy được từ dòng lệnh, đọc file CSV và in ra tổng của từng cột có dữ liệu số.",
+  "acceptance_criteria": [
+    "Script nhận đường dẫn file CSV làm input khi chạy.",
+    "Script đọc được file CSV và tính tổng đúng cho từng cột số.",
+    "Script bỏ qua cột không phải số mà không làm dừng chương trình.",
+    "Mã nguồn lưu trong 1 file Python và chạy được bằng Python 3."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-012"
+  ],
+  "batch_id": "B-004"
+}
