@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-026",
+  "project": "openclaw-ai",
+  "goal": "Xác định phạm vi REST API đơn giản bằng Python dùng http.server, gồm endpoint, phương thức HTTP, định dạng request/response và mã trạng thái để làm cơ sở triển khai.",
+  "acceptance_criteria": [
+    "Xác định rõ ít nhất 3 endpoint REST cơ bản phù hợp cho API đơn giản",
+    "Mô tả request/response JSON và mã trạng thái HTTP cho từng endpoint",
+    "Không yêu cầu framework ngoài http.server của Python standard library"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "hermes",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [],
+  "batch_id": "B-008"
+}

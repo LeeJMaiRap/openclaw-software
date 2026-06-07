@@ -1,3 +1,4 @@
-
 __pycache__/
 *.pyc
+discord/bridge.log
+discord/state.sqlite3

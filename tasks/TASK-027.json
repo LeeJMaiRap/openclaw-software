@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-027",
+  "project": "openclaw-ai",
+  "goal": "Tạo ứng dụng Python chạy được bằng http.server, cung cấp các endpoint REST đã phân tích, xử lý JSON request/response và trả về mã trạng thái HTTP đúng.",
+  "acceptance_criteria": [
+    "Có file mã nguồn Python chạy được và khởi tạo HTTP server bằng http.server",
+    "API xử lý thành công các phương thức và endpoint đã đặc tả",
+    "Response trả về JSON hợp lệ và có Content-Type phù hợp",
+    "Có xử lý trường hợp input không hợp lệ với mã lỗi HTTP phù hợp"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-026"
+  ],
+  "batch_id": "B-008"
+}

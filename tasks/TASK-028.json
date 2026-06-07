@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-028",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test riêng để kiểm tra hành vi chính của REST API, gồm ca thành công và ca lỗi.",
+  "acceptance_criteria": [
+    "Unit test là task riêng và nằm trong file test tách biệt mã nguồn chính",
+    "Có test cho ít nhất 1 ca thành công và 1 ca lỗi của API",
+    "Test xác minh mã trạng thái HTTP và nội dung JSON response",
+    "Toàn bộ test chạy pass bằng công cụ test chuẩn của Python"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-027"
+  ],
+  "batch_id": "B-008"
+}
