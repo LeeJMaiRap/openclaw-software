@@ -11,6 +11,7 @@ except ImportError:  # pragma: no cover - direct script/import fallback
     import store  # type: ignore
 
 CHANNEL_ROLES = ("leej", "workers", "results", "artifacts")
+WORKER_ROLES = ("worker-code", "worker-hermes", "worker-test")
 MAX_DISCORD_NAME_LEN = 100
 MAX_CHANNELS_PER_CATEGORY = 50
 DONE_PREFIX = "[done] "
@@ -50,20 +51,27 @@ async def create_project_category(guild: discord.Guild, project_name: str) -> di
         }
 
     category = await guild.create_category(project_key)
-    ensure_category_capacity(category, len(CHANNEL_ROLES))
+    ensure_category_capacity(category, len(CHANNEL_ROLES) + len(WORKER_ROLES))
 
     channel_ids: dict[str, str] = {}
+    worker_channel_ids: dict[str, str] = {}
     try:
         for role in CHANNEL_ROLES:
             channel_name = sanitize_name(role)
             channel = await guild.create_text_channel(channel_name, category=category)
             channel_ids[role] = str(channel.id)
 
+        for role in WORKER_ROLES:
+            channel_name = sanitize_name(role)
+            channel = await guild.create_text_channel(channel_name, category=category)
+            worker_channel_ids[role] = str(channel.id)
+
         store.create_project(project_key, str(category.id), channel_ids)
         return {
             "project": project_key,
             "category_id": str(category.id),
             "channels": channel_ids,
+            "worker_channels": worker_channel_ids,
             "existing": False,
         }
     except Exception:

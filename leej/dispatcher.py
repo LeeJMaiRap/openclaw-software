@@ -21,6 +21,11 @@ MODEL_BY_WORKER = {
     "codex-cli": "gpt-gmn-token-tunel/cx/gpt-5.4",
     "hermes": "gpt-gmn-token-tunel/cx/gpt-5.4",
 }
+PROJECT_WORKER_ROLE_BY_WORKER = {
+    "claude-cli": "worker-code",
+    "codex-cli": "worker-code",
+    "hermes": "worker-hermes",
+}
 DISPLAY_MODEL_PREFIX = "gpt-gmn-token-tunel/"
 
 
@@ -93,6 +98,7 @@ def build_dispatch(task: dict[str, Any], path: Path) -> dict[str, Any]:
     task_id = task["task_id"]
     worker = task["worker"]
     session_name = f"worker-{task_id}"
+    project_id = task.get("discord_project_id") or os.environ.get("OPENCLAW_DISCORD_PROJECT_ID")
     if worker == "manual":
         return {
             "task_id": task_id,
@@ -110,15 +116,26 @@ def build_dispatch(task: dict[str, Any], path: Path) -> dict[str, Any]:
     model = MODEL_BY_WORKER[worker]
     timeout_seconds = int(task["timeout_minutes"]) * 60
     message = worker_message(task)
+    project_worker_role = PROJECT_WORKER_ROLE_BY_WORKER.get(worker)
+    session_key = None
+    if project_id and project_worker_role:
+        session_key = f"agent:software:project-{project_id}-{project_worker_role}"
     return {
         "task_id": task_id,
         "worker": worker,
         "model": model,
-        "sessionTarget": f"session:{session_name}",
-        "sessionName": session_name,
+        "sessionTarget": f"session:{session_name}" if session_key is None else None,
+        "sessionName": session_name if session_key is None else session_key,
+        "sessionKey": session_key,
         "timeoutSeconds": timeout_seconds,
         "message": message,
         "taskPath": str(path),
+        "dispatchMethod": "sessions_send" if session_key else "cron",
+        "sessionsSend": {
+            "sessionKey": session_key,
+            "message": message,
+            "timeoutSeconds": timeout_seconds,
+        } if session_key else None,
         "cronPayload": {
             "sessionTarget": f"session:{session_name}",
             "payload": {
@@ -147,6 +164,8 @@ def write_log(dispatch: dict[str, Any], spawn_status: str = "prepared", job_id: 
 - Worker: {dispatch['worker']}
 - Model: {model}
 - Session name: {session_name}
+- Dispatch method: {dispatch.get('dispatchMethod', 'cron')}
+- Session key: {dispatch.get('sessionKey') or 'N/A'}
 - Task file: `{Path(dispatch['taskPath']).as_posix()}`
 - Spawn status: {spawn_status}
 """
@@ -156,7 +175,10 @@ def write_log(dispatch: dict[str, Any], spawn_status: str = "prepared", job_id: 
         content += f"\n## Manual handling\n\nCheck: `{dispatch['manualPath']}`\n"
     else:
         content += "\n## AgentTurn message\n\n```text\n" + dispatch["message"] + "```\n"
-        content += "\n## Cron payload\n\n```json\n" + json.dumps(dispatch["cronPayload"], ensure_ascii=False, indent=2) + "\n```\n"
+        if dispatch.get("dispatchMethod") == "sessions_send":
+            content += "\n## sessions_send payload\n\n```json\n" + json.dumps(dispatch["sessionsSend"], ensure_ascii=False, indent=2) + "\n```\n"
+        else:
+            content += "\n## Cron payload\n\n```json\n" + json.dumps(dispatch["cronPayload"], ensure_ascii=False, indent=2) + "\n```\n"
     log_path.write_text(content, encoding="utf-8")
     return log_path
 
@@ -262,12 +284,15 @@ def build_dispatch_plan(batch_id: str, waves: list[list[dict[str, Any]]], timeou
                 "worker": task["worker"],
                 "sessionTarget": dispatch.get("sessionTarget"),
                 "sessionName": dispatch.get("sessionName"),
+                "sessionKey": dispatch.get("sessionKey"),
+                "dispatchMethod": dispatch.get("dispatchMethod"),
                 "model": dispatch.get("model"),
                 "timeoutSeconds": dispatch.get("timeoutSeconds"),
                 "message": dispatch.get("message"),
                 "taskPath": str(path),
                 "depends_on": task.get("depends_on", []),
                 "cronPayload": dispatch.get("cronPayload"),
+                "sessionsSend": dispatch.get("sessionsSend"),
             })
         plan_waves.append({"wave": index, "tasks": plan_tasks})
     return {

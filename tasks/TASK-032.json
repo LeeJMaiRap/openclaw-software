@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-032",
+  "project": "openclaw-ai",
+  "goal": "Xác định rõ đầu vào, đầu ra và phạm vi xử lý cho hàm Python tính tổng các số chẵn trong một danh sách.",
+  "acceptance_criteria": [
+    "Mô tả rõ hàm nhận 1 danh sách số làm đầu vào và trả về tổng các phần tử chẵn.",
+    "Xác định quy ước số chẵn dùng phép chia dư cho 2 bằng 0.",
+    "Nêu rõ trường hợp danh sách rỗng phải trả về 0."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "hermes",
+  "priority": "high",
+  "timeout_minutes": 10,
+  "depends_on": [],
+  "batch_id": "B-010"
+}

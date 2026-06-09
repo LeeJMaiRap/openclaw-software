@@ -1,0 +1,75 @@
+{
+  "batch_id": "B-010",
+  "created_at": "2026-06-09T01:41:04Z",
+  "status": "prepared",
+  "poll_interval_seconds": 15,
+  "timeout_minutes": 20,
+  "waves": [
+    {
+      "wave": 1,
+      "jobs": [
+        {
+          "task_id": "TASK-032",
+          "name": "agent:software:project-5-worker-hermes",
+          "dispatchMethod": "sessions_send",
+          "sessionKey": "agent:software:project-5-worker-hermes",
+          "sessionTarget": null,
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+          "timeoutSeconds": 600,
+          "payload": {
+            "sessionKey": "agent:software:project-5-worker-hermes",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-032\nProject: openclaw-ai\nBatch ID: B-010\nDepends on: none\n\nGoal:\nXác định rõ đầu vào, đầu ra và phạm vi xử lý cho hàm Python tính tổng các số chẵn trong một danh sách.\n\nAcceptance criteria:\n1. Mô tả rõ hàm nhận 1 danh sách số làm đầu vào và trả về tổng các phần tử chẵn.\n2. Xác định quy ước số chẵn dùng phép chia dư cho 2 bằng 0.\n3. Nêu rõ trường hợp danh sách rỗng phải trả về 0.\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-032-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-032-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-032-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-032-done.md\n",
+            "timeoutSeconds": 600
+          }
+        }
+      ]
+    },
+    {
+      "wave": 2,
+      "jobs": [
+        {
+          "task_id": "TASK-033",
+          "name": "agent:software:project-5-worker-code",
+          "dispatchMethod": "sessions_send",
+          "sessionKey": "agent:software:project-5-worker-code",
+          "sessionTarget": null,
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1200,
+          "payload": {
+            "sessionKey": "agent:software:project-5-worker-code",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-033\nProject: openclaw-ai\nBatch ID: B-010\nDepends on: TASK-032\n\nGoal:\nTạo hàm Python hoạt động đúng để tính tổng tất cả số chẵn trong một danh sách số.\n\nAcceptance criteria:\n1. Có hàm Python riêng thực hiện tính tổng các phần tử chẵn trong danh sách.\n2. Hàm trả về đúng kết quả với danh sách gồm số chẵn, số lẻ và danh sách rỗng.\n3. Code chạy được không lỗi cú pháp.\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-033-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-033-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-033-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-033-done.md\n",
+            "timeoutSeconds": 1200
+          }
+        }
+      ]
+    },
+    {
+      "wave": 3,
+      "jobs": [
+        {
+          "task_id": "TASK-034",
+          "name": "agent:software:project-5-worker-code",
+          "dispatchMethod": "sessions_send",
+          "sessionKey": "agent:software:project-5-worker-code",
+          "sessionTarget": null,
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1200,
+          "payload": {
+            "sessionKey": "agent:software:project-5-worker-code",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-034\nProject: openclaw-ai\nBatch ID: B-010\nDepends on: TASK-033\n\nGoal:\nTạo bộ unit test kiểm tra đầy đủ hành vi chính của hàm tính tổng số chẵn.\n\nAcceptance criteria:\n1. Có test cho danh sách chỉ gồm số chẵn.\n2. Có test cho danh sách trộn số chẵn và số lẻ.\n3. Có test cho danh sách rỗng trả về 0.\n4. Tất cả unit test pass khi chạy với hàm đã viết.\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOutput requirements:\n- Write final output to: vaults/openclaw-ai/02-outputs/TASK-034-output.md\n- Write completion log to: vaults/openclaw-ai/03-logs/TASK-034-done.md\n- Keep response concise and include verification notes.\n\nIMPORTANT: All output files must be written to absolute path:\n/data/workspace/openclaw-ai/\nExample:\n- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-034-output.md\n- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-034-done.md\n",
+            "timeoutSeconds": 1200
+          }
+        }
+      ]
+    }
+  ],
+  "checker": {
+    "command": [
+      "python3",
+      "leej/checker.py",
+      "--batch",
+      "B-010"
+    ]
+  },
+  "report_path": "vaults/openclaw-ai/03-logs/B-010-pipeline.md"
+}

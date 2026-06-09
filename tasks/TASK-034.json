@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-034",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test kiểm tra đầy đủ hành vi chính của hàm tính tổng số chẵn.",
+  "acceptance_criteria": [
+    "Có test cho danh sách chỉ gồm số chẵn.",
+    "Có test cho danh sách trộn số chẵn và số lẻ.",
+    "Có test cho danh sách rỗng trả về 0.",
+    "Tất cả unit test pass khi chạy với hàm đã viết."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 20,
+  "depends_on": [
+    "TASK-033"
+  ],
+  "batch_id": "B-010"
+}

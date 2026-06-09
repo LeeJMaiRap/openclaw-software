@@ -77,10 +77,12 @@ def write_runtime_actions(batch_id: str, plan: dict[str, Any]) -> Path:
                 {
                     "task_id": task["task_id"],
                     "name": task["sessionName"],
+                    "dispatchMethod": task.get("dispatchMethod", "cron"),
+                    "sessionKey": task.get("sessionKey"),
                     "sessionTarget": task["sessionTarget"],
                     "model": task["model"],
                     "timeoutSeconds": task["timeoutSeconds"],
-                    "payload": task["cronPayload"],
+                    "payload": task.get("sessionsSend") or task["cronPayload"],
                 }
                 for task in wave["tasks"]
             ],

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 ROLE_NAMES = {"leej", "workers", "results", "artifacts"}
+WORKER_STATUSES = {"active", "done", "archived"}
 DEFAULT_DB_PATH = Path(__file__).with_name("state.sqlite3")
 
 
@@ -63,9 +64,26 @@ def init_db(path: Path | str | None = None) -> Path | str:
                 status TEXT NOT NULL,
                 FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
             );
+
+            CREATE TABLE IF NOT EXISTS workers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                channel_id TEXT NOT NULL UNIQUE,
+                session_key TEXT NOT NULL,
+                status TEXT NOT NULL CHECK(status IN ('active', 'done', 'archived')),
+                created_at TEXT NOT NULL,
+                last_active_at TEXT NOT NULL,
+                UNIQUE(project_id, name),
+                FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+            );
             """
         )
     return db_path
+
+def validate_worker_status(status: str) -> None:
+    if status not in WORKER_STATUSES:
+        raise ValueError(f"invalid worker status: {status}")
 
 
 def validate_channels(channels: dict[str, str]) -> None:
@@ -149,18 +167,24 @@ def list_projects(path: Path | str | None = None) -> list[dict[str, Any]]:
     return [dict(row) for row in rows]
 
 
-def get_project_channels(name: str, path: Path | str | None = None) -> dict[str, str]:
+def get_project_channels(project: int | str, path: Path | str | None = None) -> dict[str, str]:
     init_db(path)
     with connect(path) as conn:
+        if isinstance(project, int) or str(project).isdigit():
+            where_clause = "p.id = ?"
+            value: int | str = int(project)
+        else:
+            where_clause = "p.name = ?"
+            value = str(project)
         rows = conn.execute(
-            """
+            f"""
             SELECT c.role, c.channel_id
             FROM channels c
             JOIN projects p ON p.id = c.project_id
-            WHERE p.name = ?
+            WHERE {where_clause}
             ORDER BY c.role
             """,
-            (name,),
+            (value,),
         ).fetchall()
     return {str(row["role"]): str(row["channel_id"]) for row in rows}
 
@@ -180,6 +204,93 @@ def get_project_by_channel_id(channel_id: str, path: Path | str | None = None) -
             (str(channel_id),),
         ).fetchone()
     return row_to_dict(row)
+
+def create_worker(
+    project_id: int,
+    name: str,
+    channel_id: str,
+    session_key: str,
+    path: Path | str | None = None,
+) -> int:
+    name = name.strip()
+    channel_id = str(channel_id).strip()
+    session_key = session_key.strip()
+    if not name:
+        raise ValueError("worker name is required")
+    if not channel_id:
+        raise ValueError("worker channel_id is required")
+    if not session_key:
+        raise ValueError("worker session_key is required")
+    init_db(path)
+
+    now = utc_now()
+    with connect(path) as conn:
+        project = conn.execute("SELECT id FROM projects WHERE id = ?", (int(project_id),)).fetchone()
+        if project is None:
+            raise KeyError(f"project not found: {project_id}")
+        cur = conn.execute(
+            """
+            INSERT INTO workers(project_id, name, channel_id, session_key, status, created_at, last_active_at)
+            VALUES (?, ?, ?, ?, 'active', ?, ?)
+            """,
+            (int(project_id), name, channel_id, session_key, now, now),
+        )
+        return int(cur.lastrowid)
+
+def get_worker(name: str, project_id: int, path: Path | str | None = None) -> dict[str, Any] | None:
+    init_db(path)
+    with connect(path) as conn:
+        row = conn.execute(
+            """
+            SELECT id, project_id, name, channel_id, session_key, status, created_at, last_active_at
+            FROM workers
+            WHERE project_id = ? AND name = ?
+            """,
+            (int(project_id), name),
+        ).fetchone()
+    return row_to_dict(row)
+
+def get_worker_by_channel(channel_id: str, path: Path | str | None = None) -> dict[str, Any] | None:
+    init_db(path)
+    with connect(path) as conn:
+        row = conn.execute(
+            """
+            SELECT id, project_id, name, channel_id, session_key, status, created_at, last_active_at
+            FROM workers
+            WHERE channel_id = ?
+            """,
+            (str(channel_id),),
+        ).fetchone()
+    return row_to_dict(row)
+
+def update_worker_status(name: str, project_id: int, status: str, path: Path | str | None = None) -> None:
+    validate_worker_status(status)
+    init_db(path)
+    with connect(path) as conn:
+        cur = conn.execute(
+            """
+            UPDATE workers
+            SET status = ?, last_active_at = ?
+            WHERE project_id = ? AND name = ?
+            """,
+            (status, utc_now(), int(project_id), name),
+        )
+        if cur.rowcount == 0:
+            raise KeyError(f"worker not found: {name}")
+
+def list_workers(project_id: int, path: Path | str | None = None) -> list[dict[str, Any]]:
+    init_db(path)
+    with connect(path) as conn:
+        rows = conn.execute(
+            """
+            SELECT id, project_id, name, channel_id, session_key, status, created_at, last_active_at
+            FROM workers
+            WHERE project_id = ?
+            ORDER BY id
+            """,
+            (int(project_id),),
+        ).fetchall()
+    return [dict(row) for row in rows]
 
 
 def upsert_task(
@@ -280,6 +391,54 @@ def smoke_test() -> None:
         by_category = get_project_by_category_id("category-1", db_path)
         assert by_category is not None
         assert by_category["name"] == "smoke-project"
+
+        worker_code_id = create_worker(
+            project_id,
+            "worker-code",
+            "channel-worker-code",
+            f"project-{project_id}-worker-code",
+            db_path,
+        )
+        worker_hermes_id = create_worker(
+            project_id,
+            "worker-hermes",
+            "channel-worker-hermes",
+            f"project-{project_id}-worker-hermes",
+            db_path,
+        )
+        worker_test_id = create_worker(
+            project_id,
+            "worker-test",
+            "channel-worker-test",
+            f"project-{project_id}-worker-test",
+            db_path,
+        )
+        assert worker_code_id > 0
+        assert worker_hermes_id > 0
+        assert worker_test_id > 0
+
+        worker = get_worker("worker-code", project_id, db_path)
+        assert worker is not None
+        assert worker["name"] == "worker-code"
+        assert worker["channel_id"] == "channel-worker-code"
+        assert worker["session_key"] == f"project-{project_id}-worker-code"
+        assert worker["status"] == "active"
+
+        by_worker_channel = get_worker_by_channel("channel-worker-test", db_path)
+        assert by_worker_channel is not None
+        assert by_worker_channel["name"] == "worker-test"
+
+        workers = list_workers(project_id, db_path)
+        assert [worker["name"] for worker in workers] == [
+            "worker-code",
+            "worker-hermes",
+            "worker-test",
+        ]
+
+        update_worker_status("worker-code", project_id, "done", db_path)
+        worker = get_worker("worker-code", project_id, db_path)
+        assert worker is not None
+        assert worker["status"] == "done"
 
         upsert_task("TASK-SMOKE", "B-SMOKE", "smoke-project", "queued", "thread-1", db_path)
         task = get_task("TASK-SMOKE", db_path)

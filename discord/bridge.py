@@ -39,6 +39,11 @@ PROJECT_CREATE_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+create\s+(?
 PROJECT_DONE_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+done\s+(?P<name>.+)$", re.DOTALL)
 PROJECT_LIST_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+list\s*$")
 PROJECT_RUN_ROLE: Final[str] = "leej"
+WORKER_MODEL_BY_NAME: Final[dict[str, str]] = {
+    "worker-code": "gpt-gmn-token-tunel/cx/gpt-5.5",
+    "worker-hermes": "gpt-gmn-token-tunel/cx/gpt-5.4",
+    "worker-test": "gpt-gmn-token-tunel/cx/gpt-5.5",
+}
 
 logger = logging.getLogger("openclaw.discord.bridge")
 
@@ -80,17 +85,71 @@ intents.guilds = True
 intents.messages = True
 client = discord.Client(intents=intents)
 
-async def run_pipeline(request: str) -> subprocess.CompletedProcess[str]:
+async def run_pipeline(request: str, project_id: int | str | None = None) -> subprocess.CompletedProcess[str]:
     cmd = ["python3", "leej/run.py", request]
+    env = os.environ.copy()
+    if project_id is not None:
+        env["OPENCLAW_DISCORD_PROJECT_ID"] = str(project_id)
     return await asyncio.to_thread(
+        subprocess.run,
+        cmd,
+        cwd=str(WORKDIR),
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=60 * 60,
+    )
+
+def build_worker_bootstrap_prompt(project_name: str, worker_name: str) -> str:
+    return (
+        f"Bạn là Worker {worker_name} của project {project_name}.\n"
+        "Chờ task từ LeeJ Agent.\n"
+        "Khi nhận task, thực hiện đầy đủ và báo cáo kết quả.\n"
+        "Ghi output vào đường dẫn được chỉ định trong task.\n"
+        "Không tự kết thúc."
+    )
+
+async def bootstrap_worker_session(project_name: str, worker_name: str, session_key: str) -> subprocess.CompletedProcess[str]:
+    model = WORKER_MODEL_BY_NAME[worker_name]
+    prompt = build_worker_bootstrap_prompt(project_name, worker_name)
+    cmd = [
+        "openclaw",
+        "cron",
+        "add",
+        "--name",
+        f"bootstrap-{session_key}",
+        "--at",
+        "+1s",
+        "--session-key",
+        session_key,
+        "--model",
+        model,
+        "--thinking",
+        "off",
+        "--message",
+        prompt,
+        "--no-deliver",
+        "--timeout-seconds",
+        "120",
+    ]
+    result = await asyncio.to_thread(
         subprocess.run,
         cmd,
         cwd=str(WORKDIR),
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        timeout=60 * 60,
+        timeout=120,
     )
+    logger.info(
+        "worker bootstrap cron add | worker=%s session_key=%s returncode=%s output=%s",
+        worker_name,
+        session_key,
+        result.returncode,
+        result.stdout.strip(),
+    )
+    return result
 
 def extract_batch_id(output: str) -> str | None:
     patterns = (
@@ -194,9 +253,35 @@ async def handle_project_create(message: discord.Message, project_name: str) -> 
         )
         return
 
+    project = store.get_project(str(result["project"]))
+    if project is None:
+        await message.channel.send(f"❌ Project \"{result['project']}\" đã tạo channel nhưng thiếu SQLite mapping.")
+        return
+
+    worker_channel_ids = result.get("worker_channels") or {}
+    worker_errors: list[str] = []
+    for worker_name, channel_id in worker_channel_ids.items():
+        session_key = f"agent:software:project-{project['id']}-{worker_name}"
+        try:
+            store.create_worker(int(project["id"]), worker_name, str(channel_id), session_key)
+            spawn_result = await bootstrap_worker_session(str(result["project"]), worker_name, session_key)
+        except Exception as exc:  # noqa: BLE001
+            worker_errors.append(f"{worker_name}: {type(exc).__name__}: {exc}")
+            continue
+        if spawn_result.returncode != 0:
+            worker_errors.append(f"{worker_name}: cron bootstrap failed: {spawn_result.stdout.strip()}")
+
+    if worker_errors:
+        await message.channel.send(
+            f"⚠️ Project \"{result['project']}\" đã tạo, nhưng worker session bootstrap lỗi:\n"
+            + "\n".join(f"- {error}" for error in worker_errors)
+        )
+        return
+
     await message.channel.send(
         f"✅ Project \"{result['project']}\" đã tạo\n"
-        "Category và channels đã sẵn sàng."
+        "Workers: worker-code, worker-hermes, worker-test\n"
+        "Sessions: ready"
     )
 
 async def handle_project_list(message: discord.Message) -> None:
@@ -249,7 +334,7 @@ async def handle_run(message: discord.Message, request: str) -> None:
         await workers_channel.send(f"⚙️ Project {project['name']}: bắt đầu pipeline\nRequest: {request}")
 
     try:
-        result = await run_pipeline(request)
+        result = await run_pipeline(request, project["id"] if project_route is not None else None)
     except subprocess.TimeoutExpired:
         await results_channel.send("❌ Pipeline failed: timeout after 60 minutes")
         return

@@ -1,0 +1,24 @@
+{
+  "task_id": "TASK-033",
+  "project": "openclaw-ai",
+  "goal": "Tạo hàm Python hoạt động đúng để tính tổng tất cả số chẵn trong một danh sách số.",
+  "acceptance_criteria": [
+    "Có hàm Python riêng thực hiện tính tổng các phần tử chẵn trong danh sách.",
+    "Hàm trả về đúng kết quả với danh sách gồm số chẵn, số lẻ và danh sách rỗng.",
+    "Code chạy được không lỗi cú pháp."
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 20,
+  "depends_on": [
+    "TASK-032"
+  ],
+  "batch_id": "B-010"
+}
