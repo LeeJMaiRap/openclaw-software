@@ -157,6 +157,18 @@ def get_project_by_category_id(category_id: str, path: Path | str | None = None)
         ).fetchone()
     return row_to_dict(row)
 
+def update_project_batch_id(project_id: int, batch_id: str, path: Path | str | None = None) -> None:
+    if not batch_id.strip():
+        raise ValueError("batch_id is required")
+    init_db(path)
+    with connect(path) as conn:
+        cur = conn.execute(
+            "UPDATE projects SET batch_id = ? WHERE id = ?",
+            (batch_id.strip(), int(project_id)),
+        )
+        if cur.rowcount == 0:
+            raise KeyError(f"project not found: {project_id}")
+
 
 def list_projects(path: Path | str | None = None) -> list[dict[str, Any]]:
     init_db(path)
@@ -341,6 +353,22 @@ def get_task(task_id: str, path: Path | str | None = None) -> dict[str, Any] | N
             (task_id,),
         ).fetchone()
     return row_to_dict(row)
+
+def list_tasks_by_project(project_id: int, path: Path | str | None = None) -> list[dict[str, Any]]:
+    init_db(path)
+    with connect(path) as conn:
+        rows = conn.execute(
+            """
+            SELECT t.task_id, t.batch_id, p.name AS project_name, p.id AS project_id,
+                   t.thread_id, t.status
+            FROM tasks t
+            JOIN projects p ON p.id = t.project_id
+            WHERE p.id = ?
+            ORDER BY t.task_id
+            """,
+            (int(project_id),),
+        ).fetchall()
+    return [dict(row) for row in rows]
 
 
 def update_task_status(task_id: str, status: str, path: Path | str | None = None) -> None:

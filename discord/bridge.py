@@ -11,11 +11,13 @@ Sprint 7 behavior:
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 import re
 import subprocess
 import tempfile
+from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Final
@@ -38,14 +40,26 @@ COMMAND_RE: Final[re.Pattern[str]] = re.compile(r'^!run\s+"(?P<request>.+)"\s*$'
 PROJECT_CREATE_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+create\s+(?P<name>.+)$", re.DOTALL)
 PROJECT_DONE_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+done\s+(?P<name>.+)$", re.DOTALL)
 PROJECT_LIST_RE: Final[re.Pattern[str]] = re.compile(r"^!project\s+list\s*$")
+FIX_RE: Final[re.Pattern[str]] = re.compile(r'^!fix\s+(?P<task_id>TASK-\d+)\s+"(?P<description>.+)"\s*$', re.DOTALL)
 PROJECT_RUN_ROLE: Final[str] = "leej"
+FIX_REQUEST_DIR: Final[Path] = WORKDIR / "vaults" / "openclaw-ai" / "03-logs" / "fix-requests"
+OUTPUT_DIR: Final[Path] = WORKDIR / "vaults" / "openclaw-ai" / "02-outputs"
+TASK_DIR: Final[Path] = WORKDIR / "tasks"
 WORKER_MODEL_BY_NAME: Final[dict[str, str]] = {
     "worker-code": "gpt-gmn-token-tunel/cx/gpt-5.5",
     "worker-hermes": "gpt-gmn-token-tunel/cx/gpt-5.4",
     "worker-test": "gpt-gmn-token-tunel/cx/gpt-5.5",
 }
+WORKER_ROLE_BY_TASK_WORKER: Final[dict[str, str]] = {
+    "claude-cli": "worker-code",
+    "codex-cli": "worker-code",
+    "hermes": "worker-hermes",
+}
 
 logger = logging.getLogger("openclaw.discord.bridge")
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
 def configure_logging() -> None:
@@ -170,6 +184,94 @@ def find_pipeline_report(batch_id: str | None) -> Path | None:
     if candidate.exists():
         return candidate
     return None
+
+def load_task(task_id: str) -> dict[str, Any]:
+    path = TASK_DIR / f"{task_id}.json"
+    if not path.exists():
+        raise FileNotFoundError(f"task file not found: {path.relative_to(WORKDIR)}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+def worker_role_for_task(task: dict[str, Any]) -> str:
+    worker = str(task.get("worker", "")).strip()
+    role = WORKER_ROLE_BY_TASK_WORKER.get(worker)
+    if role is None:
+        raise KeyError(f"no worker role mapping for task worker: {worker}")
+    return role
+
+def output_excerpt(task_id: str, limit: int = 1200) -> str:
+    path = OUTPUT_DIR / f"{task_id}-output.md"
+    if not path.exists():
+        return "(no current output file)"
+    text = path.read_text(encoding="utf-8", errors="replace").strip()
+    if len(text) <= limit:
+        return text
+    return text[:limit].rstrip() + "\n...(truncated)"
+
+def build_fix_worker_message(task_id: str, fix_description: str) -> str:
+    output_path = OUTPUT_DIR / f"{task_id}-output.md"
+    return (
+        f"[FIX REQUEST] {task_id}\n"
+        f"Fix description: {fix_description}\n\n"
+        f"Current output:\n{output_excerpt(task_id)}\n\n"
+        f"Context file: {output_path.relative_to(WORKDIR)}\n"
+        "Vui lòng fix và ghi output mới vào cùng đường dẫn."
+    )
+
+def write_fix_request(
+    task_id: str,
+    fix_description: str,
+    project_id: int,
+    worker_role: str,
+    worker_session_key: str,
+) -> Path:
+    FIX_REQUEST_DIR.mkdir(parents=True, exist_ok=True)
+    path = FIX_REQUEST_DIR / f"{task_id}-fix.json"
+    payload = {
+        "task_id": task_id,
+        "fix_description": fix_description,
+        "requested_at": utc_now(),
+        "status": "pending",
+        "project_id": project_id,
+        "worker_role": worker_role,
+        "worker_session_key": worker_session_key,
+        "message": build_fix_worker_message(task_id, fix_description),
+    }
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(path)
+    return path
+
+def infer_project_batch_id(project_id: int) -> str | None:
+    tasks = store.list_tasks_by_project(project_id)
+    if tasks:
+        return str(tasks[-1]["batch_id"])
+
+    marker = f"agent:software:project-{project_id}-"
+    candidates: list[tuple[float, str]] = []
+    for path in (WORKDIR / "vaults" / "openclaw-ai" / "03-logs").glob("B-*-runtime-actions.json"):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        if marker not in text:
+            continue
+        match = re.match(r"(B-\d+)-runtime-actions\.json$", path.name)
+        if match:
+            candidates.append((path.stat().st_mtime, match.group(1)))
+    if not candidates:
+        return None
+    return sorted(candidates)[-1][1]
+
+async def run_checker_batch(batch_id: str) -> subprocess.CompletedProcess[str]:
+    return await asyncio.to_thread(
+        subprocess.run,
+        ["python3", "leej/checker.py", "--batch", batch_id],
+        cwd=str(WORKDIR),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=20 * 60,
+    )
 
 def build_summary(request: str, result: subprocess.CompletedProcess[str]) -> tuple[str, Path | None]:
     output = result.stdout or ""
@@ -304,12 +406,88 @@ async def handle_project_done(message: discord.Message, project_name: str) -> No
     if message.guild is None:
         return
     clean_name = channel_manager.sanitize_name(project_name)
+    project = store.get_project(clean_name)
+    if project is None:
+        await message.channel.send(f"❌ Không tìm thấy project \"{clean_name}\".")
+        return
+
+    channels = store.get_project_channels(int(project["id"]))
+    results_channel = await resolve_channel(channels["results"])
+    batch_id = project.get("batch_id") or infer_project_batch_id(int(project["id"]))
+    if not batch_id:
+        pass
+    else:
+        store.update_project_batch_id(int(project["id"]), str(batch_id))
+
+    summary_lines = [f"Project {clean_name} — tổng kết"]
+    if batch_id:
+        try:
+            result = await run_checker_batch(str(batch_id))
+            summary_lines.append(f"Batch: {batch_id}")
+            summary_lines.append(result.stdout.strip() or "(checker no output)")
+        except Exception as exc:  # noqa: BLE001
+            summary_lines.append(f"Batch: {batch_id}")
+            summary_lines.append(f"Checker failed: {type(exc).__name__}: {exc}")
+    else:
+        summary_lines.append("Batch: unknown")
+        summary_lines.append("Tasks: unknown — project has no batch_id")
+
+    await send_text_or_file(results_channel, "\n".join(summary_lines), f"{clean_name}-done-summary.md")
+
     try:
         await channel_manager.archive_project(message.guild, project_name)
     except Exception as exc:  # noqa: BLE001
         await message.channel.send(f"❌ Không archive được project \"{clean_name}\": {type(exc).__name__}: {exc}")
         return
-    await message.channel.send(f"✅ Project \"{clean_name}\" đã archive")
+
+    for worker in store.list_workers(int(project["id"])):
+        store.update_worker_status(str(worker["name"]), int(project["id"]), "archived")
+
+    await message.channel.send(
+        f"✅ Project \"{clean_name}\" đã đóng.\n"
+        "Category archived. Sessions closed."
+    )
+
+async def handle_fix(message: discord.Message, task_id: str, fix_description: str) -> None:
+    project_route = await resolve_project_route(message)
+    if project_route is None:
+        await message.channel.send("⚠️ Hãy chạy `!fix` trong channel #leej của project.")
+        return
+    if project_route["role"] != PROJECT_RUN_ROLE:
+        await message.channel.send("⚠️ Hãy chạy `!fix` trong channel #leej của project này.")
+        return
+
+    project = project_route["project"]
+    workers_channel = project_route["workers"]
+    try:
+        task = load_task(task_id)
+        worker_role = worker_role_for_task(task)
+        worker = store.get_worker(worker_role, int(project["id"]))
+        if worker is None:
+            raise KeyError(f"worker not found: {worker_role}")
+        request_path = write_fix_request(
+            task_id,
+            fix_description,
+            int(project["id"]),
+            worker_role,
+            str(worker["session_key"]),
+        )
+    except Exception as exc:  # noqa: BLE001
+        await message.channel.send(f"❌ Không ghi được fix request {task_id}: {type(exc).__name__}: {exc}")
+        return
+
+    await message.channel.send(
+        f"📝 Fix request {task_id} đã ghi.\n"
+        "Nhắn LeeJ 'xử lý fix requests' để tiến hành."
+    )
+    await workers_channel.send(f"⏳ {task_id}: fix request pending")
+    logger.info(
+        "fix request queued | task=%s project=%s worker=%s path=%s",
+        task_id,
+        project["name"],
+        worker_role,
+        request_path,
+    )
 
 async def handle_run(message: discord.Message, request: str) -> None:
     project_route = await resolve_project_route(message)
@@ -390,6 +568,15 @@ async def on_message(message: discord.Message) -> None:
     project_done = PROJECT_DONE_RE.match(content)
     if project_done:
         await handle_project_done(message, project_done.group("name").strip())
+        return
+
+    fix_match = FIX_RE.match(content)
+    if fix_match:
+        await handle_fix(
+            message,
+            fix_match.group("task_id").strip(),
+            fix_match.group("description").strip(),
+        )
         return
 
     run_match = COMMAND_RE.match(content)

@@ -144,6 +144,18 @@ async def archive_project(guild: discord.Guild, project_name: str) -> dict[str, 
             )
             locked_channels.append(role)
 
+    for worker in store.list_workers(int(project["id"])):
+        channel = await fetch_channel(guild, str(worker["channel_id"]))
+        if channel is None:
+            continue
+        if hasattr(channel, "set_permissions"):
+            await channel.set_permissions(
+                guild.default_role,
+                overwrite=overwrite,
+                reason="OpenClaw project archived",
+            )
+            locked_channels.append(str(worker["name"]))
+
     return {
         "project": project_key,
         "category_id": str(project["category_id"]),

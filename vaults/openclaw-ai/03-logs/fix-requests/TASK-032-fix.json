@@ -1,0 +1,13 @@
+{
+  "task_id": "TASK-032",
+  "fix_description": "Thêm xử lý edge case: danh sách rỗng",
+  "requested_at": "2026-06-09T11:18:16+00:00",
+  "status": "done",
+  "project_id": 5,
+  "worker_role": "worker-hermes",
+  "worker_session_key": "agent:software:project-5-worker-hermes",
+  "message": "[FIX REQUEST] TASK-032\nFix description: Thêm xử lý edge case: danh sách rỗng\n\nCurrent output:\n# TASK-032 - Đặc tả hàm tính tổng số chẵn\n\n## Mục tiêu\n\nXác định đầu vào, đầu ra và phạm vi xử lý cho hàm Python tính tổng các số chẵn trong một danh sách.\n\n## Đầu vào\n\n- Hàm nhận **1 danh sách số**.\n- Mỗi phần tử trong danh sách là một số có thể kiểm tra tính chẵn bằng phép chia dư.\n\nVí dụ:\n\n```python\n[1, 2, 3, 4, 6]\n```\n\n## Đầu ra\n\n- Hàm trả về **tổng các phần tử chẵn** trong danh sách.\n- Kết quả là một số.\n\nVí dụ:\n\n```python\n[1, 2, 3, 4, 6] -> 12\n```\n\nVì các số chẵn là `2`, `4`, `6`, tổng là `12`.\n\n## Quy ước xác định số chẵn\n\nMột số được xem là số chẵn nếu phép chia dư cho `2` bằng `0`:\n\n```python\nnumber % 2 == 0\n```\n\n## Trường hợp danh sách rỗng\n\nNếu danh sách đầu vào rỗng, hàm phải trả về `0`.\n\nVí dụ:\n\n```python\n[] -> 0\n```\n\nLý do: không có phần tử nào để cộng, nên tổng mặc định là `0`.\n\n## Phạm vi xử lý\n\nHàm chỉ cần:\n\n1. Duyệt qua các phần tử trong danh sách.\n2. Kiểm tra phần tử nào là số chẵn bằng `number % 2 == 0`.\n3. Cộng các phần tử chẵn.\n4. Trả về tổng cuối cùng.\n\n## Ví dụ hàm Python\n\n```python\ndef sum_even_numbers(numbers):\n    total = 0\n\n    for number in numbers:\n        if number % 2 == 0:\n            total += number\n\n    return total\n```\n\n## Ví dụ kiểm tra\n\n```pyth\n...(truncated)\n\nContext file: vaults/openclaw-ai/02-outputs/TASK-032-output.md\nVui lòng fix và ghi output mới vào cùng đường dẫn.",
+  "updated_at": "2026-06-09T11:24:51+00:00",
+  "note": "already fixed; checker passed before docs commit",
+  "worker_reply": "Xong. Đã ghi đúng path repo + tạo done log."
+}
