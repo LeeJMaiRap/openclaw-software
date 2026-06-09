@@ -1,0 +1,24 @@
+{
+  "task_id": "TASK-036",
+  "project": "openclaw-ai",
+  "goal": "Tạo hàm Python hoạt động đúng để đếm số nguyên tố trong khoảng [a, b] theo đặc tả đã phân tích.",
+  "acceptance_criteria": [
+    "Có hàm Python nhận 2 tham số nguyên a, b và trả về một số nguyên là lượng số nguyên tố trong [a, b]",
+    "Kết quả đúng với các trường hợp cơ bản như [2,2], [1,10], [10,20] và trường hợp không có số nguyên tố",
+    "Mã chạy được không lỗi cú pháp và không dùng thư viện ngoài không cần thiết"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-035"
+  ],
+  "batch_id": "B-011"
+}

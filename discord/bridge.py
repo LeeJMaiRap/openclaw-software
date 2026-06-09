@@ -116,11 +116,22 @@ async def run_pipeline(request: str, project_id: int | str | None = None) -> sub
     )
 
 def build_worker_bootstrap_prompt(project_name: str, worker_name: str) -> str:
+    output_dir = WORKDIR / "vaults" / "openclaw-ai" / "02-outputs"
+    done_log_dir = WORKDIR / "vaults" / "openclaw-ai" / "03-logs"
     return (
         f"Bạn là Worker {worker_name} của project {project_name}.\n"
         "Chờ task từ LeeJ Agent.\n"
         "Khi nhận task, thực hiện đầy đủ và báo cáo kết quả.\n"
         "Ghi output vào đường dẫn được chỉ định trong task.\n"
+        "\n"
+        "IMPORTANT — ABSOLUTE PATHS:\n"
+        f"Workspace root: {WORKDIR}/\n"
+        f"Output files:   {output_dir}/\n"
+        f"Done logs:      {done_log_dir}/\n"
+        f"Source code:    {WORKDIR}/\n"
+        "NEVER write to: /data/workspace/ (wrong root)\n"
+        "NEVER use relative paths.\n"
+        f"ALWAYS use full absolute paths starting with {WORKDIR}/\n"
         "Không tự kết thúc."
     )
 
@@ -209,12 +220,18 @@ def output_excerpt(task_id: str, limit: int = 1200) -> str:
 
 def build_fix_worker_message(task_id: str, fix_description: str) -> str:
     output_path = OUTPUT_DIR / f"{task_id}-output.md"
+    done_log_path = WORKDIR / "vaults" / "openclaw-ai" / "03-logs" / f"{task_id}-done.md"
     return (
         f"[FIX REQUEST] {task_id}\n"
         f"Fix description: {fix_description}\n\n"
-        f"Current output:\n{output_excerpt(task_id)}\n\n"
-        f"Context file: {output_path.relative_to(WORKDIR)}\n"
-        "Vui lòng fix và ghi output mới vào cùng đường dẫn."
+        "IMPORTANT PATHS:\n"
+        f"- Current output: {output_path}\n"
+        "- Write fixed output to SAME path (overwrite)\n"
+        f"- Write done log to: {done_log_path}\n"
+        "- NEVER write to /data/workspace/ directly\n"
+        "- NEVER use relative paths\n\n"
+        f"Current output content:\n{output_excerpt(task_id)}\n\n"
+        "Vui lòng fix và ghi output mới vào đúng absolute path ở trên."
     )
 
 def write_fix_request(

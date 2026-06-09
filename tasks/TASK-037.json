@@ -1,0 +1,24 @@
+{
+  "task_id": "TASK-037",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test riêng để kiểm tra tính đúng đắn của hàm trên các trường hợp chuẩn và biên.",
+  "acceptance_criteria": [
+    "Có file unit test riêng phụ thuộc vào hàm đã viết",
+    "Bao phủ ít nhất các ca: khoảng chỉ có 1 số nguyên tố, khoảng nhiều số nguyên tố, khoảng không có số nguyên tố, và biên với giá trị nhỏ hơn 2",
+    "Chạy test cho kết quả pass toàn bộ với implementation đúng"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-036"
+  ],
+  "batch_id": "B-011"
+}

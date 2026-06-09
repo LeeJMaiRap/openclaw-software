@@ -81,16 +81,16 @@ Acceptance criteria:
 Constraints:
 {constraints}
 
-Output requirements:
-- Write final output to: vaults/openclaw-ai/02-outputs/{task_id}-output.md
-- Write completion log to: vaults/openclaw-ai/03-logs/{task_id}-done.md
+OUTPUT REQUIREMENTS:
+- Write output to EXACT path:
+  {OUTPUT_DIR / f"{task_id}-output.md"}
+- Write done log to EXACT path:
+  {LOG_DIR / f"{task_id}-done.md"}
+- All source code files under:
+  {REPO_ROOT}/
+- NEVER use /data/workspace/ as root
+- NEVER use relative paths
 - Keep response concise and include verification notes.
-
-IMPORTANT: All output files must be written to absolute path:
-/data/workspace/openclaw-ai/
-Example:
-- output → /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/{task_id}-output.md
-- done log → /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/{task_id}-done.md
 """
 
 
