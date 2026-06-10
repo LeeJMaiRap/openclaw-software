@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-038",
+  "project": "openclaw-ai",
+  "goal": "Xác định đầy đủ quy tắc cần hỗ trợ cho hàm chuyển đổi số La Mã sang số nguyên, gồm ký tự hợp lệ và trường hợp trừ như IV, IX, XL, XC, CD, CM.",
+  "acceptance_criteria": [
+    "Liệt kê rõ tập ký tự La Mã cần hỗ trợ: I, V, X, L, C, D, M",
+    "Liệt kê rõ quy tắc cộng và quy tắc trừ áp dụng trong chuyển đổi",
+    "Nêu phạm vi đầu vào mục tiêu cho hàm để lập trình viên code nhất quán"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "hermes",
+  "priority": "high",
+  "timeout_minutes": 15,
+  "depends_on": [],
+  "batch_id": "B-012"
+}

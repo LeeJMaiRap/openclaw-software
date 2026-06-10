@@ -1,0 +1,111 @@
+{
+  "batch_id": "B-012",
+  "timeout_minutes": 30,
+  "poll_interval_seconds": 15,
+  "status": "prepared",
+  "waves": [
+    {
+      "wave": 1,
+      "tasks": [
+        {
+          "task_id": "TASK-038",
+          "worker": "hermes",
+          "sessionTarget": null,
+          "sessionName": "agent:software:project-7-worker-hermes",
+          "sessionKey": "agent:software:project-7-worker-hermes",
+          "dispatchMethod": "sessions_send",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+          "timeoutSeconds": 900,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-038\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: none\n\nGoal:\nXác định đầy đủ quy tắc cần hỗ trợ cho hàm chuyển đổi số La Mã sang số nguyên, gồm ký tự hợp lệ và trường hợp trừ như IV, IX, XL, XC, CD, CM.\n\nAcceptance criteria:\n1. Liệt kê rõ tập ký tự La Mã cần hỗ trợ: I, V, X, L, C, D, M\n2. Liệt kê rõ quy tắc cộng và quy tắc trừ áp dụng trong chuyển đổi\n3. Nêu phạm vi đầu vào mục tiêu cho hàm để lập trình viên code nhất quán\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-038-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-038-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-038.json",
+          "depends_on": [],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-038",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-038\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: none\n\nGoal:\nXác định đầy đủ quy tắc cần hỗ trợ cho hàm chuyển đổi số La Mã sang số nguyên, gồm ký tự hợp lệ và trường hợp trừ như IV, IX, XL, XC, CD, CM.\n\nAcceptance criteria:\n1. Liệt kê rõ tập ký tự La Mã cần hỗ trợ: I, V, X, L, C, D, M\n2. Liệt kê rõ quy tắc cộng và quy tắc trừ áp dụng trong chuyển đổi\n3. Nêu phạm vi đầu vào mục tiêu cho hàm để lập trình viên code nhất quán\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-038-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-038-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+              "lightContext": true,
+              "timeoutSeconds": 900
+            }
+          },
+          "sessionsSend": {
+            "sessionKey": "agent:software:project-7-worker-hermes",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-038\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: none\n\nGoal:\nXác định đầy đủ quy tắc cần hỗ trợ cho hàm chuyển đổi số La Mã sang số nguyên, gồm ký tự hợp lệ và trường hợp trừ như IV, IX, XL, XC, CD, CM.\n\nAcceptance criteria:\n1. Liệt kê rõ tập ký tự La Mã cần hỗ trợ: I, V, X, L, C, D, M\n2. Liệt kê rõ quy tắc cộng và quy tắc trừ áp dụng trong chuyển đổi\n3. Nêu phạm vi đầu vào mục tiêu cho hàm để lập trình viên code nhất quán\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-038-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-038-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+            "timeoutSeconds": 900
+          }
+        }
+      ]
+    },
+    {
+      "wave": 2,
+      "tasks": [
+        {
+          "task_id": "TASK-039",
+          "worker": "claude-cli",
+          "sessionTarget": null,
+          "sessionName": "agent:software:project-7-worker-code",
+          "sessionKey": "agent:software:project-7-worker-code",
+          "dispatchMethod": "sessions_send",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-039\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: TASK-038\n\nGoal:\nTạo hàm Python nhận chuỗi số La Mã và trả về đúng số nguyên theo quy tắc đã phân tích.\n\nAcceptance criteria:\n1. Có hàm Python tên phù hợp, nhận 1 chuỗi đầu vào và trả về 1 số nguyên\n2. Xử lý đúng các cặp trừ chuẩn: IV, IX, XL, XC, CD, CM\n3. Kết quả đúng với ví dụ phổ biến như III -> 3, LVIII -> 58, MCMXCIV -> 1994\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-039-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-039-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-039.json",
+          "depends_on": [
+            "TASK-038"
+          ],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-039",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-039\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: TASK-038\n\nGoal:\nTạo hàm Python nhận chuỗi số La Mã và trả về đúng số nguyên theo quy tắc đã phân tích.\n\nAcceptance criteria:\n1. Có hàm Python tên phù hợp, nhận 1 chuỗi đầu vào và trả về 1 số nguyên\n2. Xử lý đúng các cặp trừ chuẩn: IV, IX, XL, XC, CD, CM\n3. Kết quả đúng với ví dụ phổ biến như III -> 3, LVIII -> 58, MCMXCIV -> 1994\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-039-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-039-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          },
+          "sessionsSend": {
+            "sessionKey": "agent:software:project-7-worker-code",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-039\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: TASK-038\n\nGoal:\nTạo hàm Python nhận chuỗi số La Mã và trả về đúng số nguyên theo quy tắc đã phân tích.\n\nAcceptance criteria:\n1. Có hàm Python tên phù hợp, nhận 1 chuỗi đầu vào và trả về 1 số nguyên\n2. Xử lý đúng các cặp trừ chuẩn: IV, IX, XL, XC, CD, CM\n3. Kết quả đúng với ví dụ phổ biến như III -> 3, LVIII -> 58, MCMXCIV -> 1994\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-039-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-039-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+            "timeoutSeconds": 1800
+          }
+        }
+      ]
+    },
+    {
+      "wave": 3,
+      "tasks": [
+        {
+          "task_id": "TASK-040",
+          "worker": "claude-cli",
+          "sessionTarget": null,
+          "sessionName": "agent:software:project-7-worker-code",
+          "sessionKey": "agent:software:project-7-worker-code",
+          "dispatchMethod": "sessions_send",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1800,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-040\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: TASK-039\n\nGoal:\nTạo bộ unit test riêng để kiểm tra các ca cơ bản, ca có quy tắc trừ, và ca tổng hợp cho hàm chuyển đổi số La Mã.\n\nAcceptance criteria:\n1. Unit test là file riêng, tách khỏi file code hàm\n2. Có test cho ca cơ bản như I, III, V\n3. Có test cho các ca trừ như IV, IX, XL, CM\n4. Có test cho ít nhất 1 ca tổng hợp dài như MCMXCIV\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-040-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-040-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-040.json",
+          "depends_on": [
+            "TASK-039"
+          ],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-040",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-040\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: TASK-039\n\nGoal:\nTạo bộ unit test riêng để kiểm tra các ca cơ bản, ca có quy tắc trừ, và ca tổng hợp cho hàm chuyển đổi số La Mã.\n\nAcceptance criteria:\n1. Unit test là file riêng, tách khỏi file code hàm\n2. Có test cho ca cơ bản như I, III, V\n3. Có test cho các ca trừ như IV, IX, XL, CM\n4. Có test cho ít nhất 1 ca tổng hợp dài như MCMXCIV\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-040-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-040-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+              "lightContext": true,
+              "timeoutSeconds": 1800
+            }
+          },
+          "sessionsSend": {
+            "sessionKey": "agent:software:project-7-worker-code",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-040\nProject: openclaw-ai\nBatch ID: B-012\nDepends on: TASK-039\n\nGoal:\nTạo bộ unit test riêng để kiểm tra các ca cơ bản, ca có quy tắc trừ, và ca tổng hợp cho hàm chuyển đổi số La Mã.\n\nAcceptance criteria:\n1. Unit test là file riêng, tách khỏi file code hàm\n2. Có test cho ca cơ bản như I, III, V\n3. Có test cho các ca trừ như IV, IX, XL, CM\n4. Có test cho ít nhất 1 ca tổng hợp dài như MCMXCIV\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-040-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-040-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+            "timeoutSeconds": 1800
+          }
+        }
+      ]
+    }
+  ]
+}
