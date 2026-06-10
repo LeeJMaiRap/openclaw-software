@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-040",
+  "project": "openclaw-ai",
+  "goal": "Tạo bộ unit test riêng để kiểm tra các ca cơ bản, ca có quy tắc trừ, và ca tổng hợp cho hàm chuyển đổi số La Mã.",
+  "acceptance_criteria": [
+    "Unit test là file riêng, tách khỏi file code hàm",
+    "Có test cho ca cơ bản như I, III, V",
+    "Có test cho các ca trừ như IV, IX, XL, CM",
+    "Có test cho ít nhất 1 ca tổng hợp dài như MCMXCIV"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "claude-cli",
+  "priority": "high",
+  "timeout_minutes": 30,
+  "depends_on": [
+    "TASK-039"
+  ],
+  "batch_id": "B-012"
+}
