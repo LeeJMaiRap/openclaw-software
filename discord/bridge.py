@@ -469,12 +469,28 @@ async def handle_project_done(message: discord.Message, project_name: str) -> No
 
     summary_lines = [f"Project {clean_name} — tổng kết"]
     if batch_id:
+        summary_lines.append(f"Batch: {batch_id}")
+        runtime_json = WORKDIR / "vaults" / "openclaw-ai" / "03-logs" / f"{batch_id}-runtime-execution.json"
+        if runtime_json.exists():
+            try:
+                runtime_data = json.loads(runtime_json.read_text(encoding="utf-8"))
+                summary_lines.append(f"Runtime status: {runtime_data.get('status', 'unknown')}")
+                prs = runtime_data.get("prs") or []
+                pr_urls = [url for pr in prs for url in (pr.get("urls") or [])]
+                if pr_urls:
+                    summary_lines.append("PRs:")
+                    summary_lines.extend(f"- {url}" for url in pr_urls)
+                failures = runtime_data.get("checker_failures") or []
+                if failures:
+                    summary_lines.append("Checker failures:")
+                    summary_lines.extend(f"- {failure}" for failure in failures)
+            except Exception as exc:  # noqa: BLE001
+                summary_lines.append(f"Runtime summary read failed: {type(exc).__name__}: {exc}")
         try:
             result = await run_checker_batch(str(batch_id))
-            summary_lines.append(f"Batch: {batch_id}")
+            summary_lines.append("Checker:")
             summary_lines.append(result.stdout.strip() or "(checker no output)")
         except Exception as exc:  # noqa: BLE001
-            summary_lines.append(f"Batch: {batch_id}")
             summary_lines.append(f"Checker failed: {type(exc).__name__}: {exc}")
     else:
         summary_lines.append("Batch: unknown")
