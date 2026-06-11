@@ -1,6 +1,6 @@
 import unittest
 
-from prime import is_prime
+from prime import count_primes, is_prime
 
 
 class TestIsPrime(unittest.TestCase):
@@ -18,6 +18,17 @@ class TestIsPrime(unittest.TestCase):
         self.assertFalse(is_prime(4))
         self.assertFalse(is_prime(9))
         self.assertFalse(is_prime(21))
+
+
+class TestCountPrimes(unittest.TestCase):
+    def test_empty_list_returns_zero(self):
+        self.assertEqual(count_primes([]), 0)
+
+    def test_negative_zero_and_one_are_not_counted_as_primes(self):
+        self.assertEqual(count_primes([-10, -3, -1, 0, 1]), 0)
+
+    def test_mixed_primes_and_composites_returns_correct_count(self):
+        self.assertEqual(count_primes([2, 3, 4, 5, 8, 9, 11, 12, 13]), 5)
 
 
 if __name__ == "__main__":
