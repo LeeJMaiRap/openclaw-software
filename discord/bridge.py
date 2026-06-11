@@ -104,7 +104,7 @@ async def run_pipeline(
     project_id: int | str | None = None,
     project_name: str | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    cmd = ["python3", "leej/run.py", "--auto-pr", request]
+    cmd = ["python3", "leej/run.py", request]
     env = os.environ.copy()
     if project_id is not None:
         env["OPENCLAW_DISCORD_PROJECT_ID"] = str(project_id)
@@ -119,6 +119,20 @@ async def run_pipeline(
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         timeout=60 * 60,
+    )
+
+async def run_runtime_executor(batch_id: str, project_name: str | None = None) -> subprocess.CompletedProcess[str]:
+    cmd = ["python3", "leej/runtime_executor.py", "--batch-id", batch_id, "--auto-pr"]
+    if project_name:
+        cmd.extend(["--project", project_name])
+    return await asyncio.to_thread(
+        subprocess.run,
+        cmd,
+        cwd=str(WORKDIR),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=2 * 60 * 60,
     )
 
 def build_worker_bootstrap_prompt(project_name: str, worker_name: str) -> str:
@@ -560,13 +574,34 @@ async def handle_run(message: discord.Message, request: str) -> None:
 
     summary, report_path = build_summary(request, result)
     batch_id = extract_batch_id(result.stdout or "") or "unknown"
+    runtime_result: subprocess.CompletedProcess[str] | None = None
 
     if project_route is not None:
-        await workers_channel.send(f"✅ Pipeline finished. Batch: {batch_id}. Exit code: {result.returncode}")
+        await workers_channel.send(f"✅ Pipeline prepared. Batch: {batch_id}. Exit code: {result.returncode}")
+        if result.returncode == 0 and batch_id != "unknown":
+            await workers_channel.send(f"🚀 Executing runtime waves for {batch_id}...")
+            try:
+                runtime_result = await run_runtime_executor(batch_id, project["name"])
+                await workers_channel.send(
+                    f"✅ Runtime finished. Batch: {batch_id}. Exit code: {runtime_result.returncode}"
+                )
+            except subprocess.TimeoutExpired:
+                await results_channel.send(f"❌ Runtime failed: timeout for {batch_id}")
+            except Exception as exc:  # noqa: BLE001
+                await results_channel.send(f"❌ Runtime failed for {batch_id}: {type(exc).__name__}: {exc}")
 
-    await send_text_or_file(results_channel, summary, f"{batch_id}-discord-output.md")
+    final_summary = summary
+    if runtime_result is not None:
+        final_summary = "\n\n".join([
+            summary,
+            "Runtime output:",
+            runtime_result.stdout.strip() or "(no runtime output)",
+        ])
 
-    pr_urls = extract_pr_urls(result.stdout or "")
+    await send_text_or_file(results_channel, final_summary, f"{batch_id}-discord-output.md")
+
+    combined_output = (result.stdout or "") + "\n" + ((runtime_result.stdout or "") if runtime_result else "")
+    pr_urls = extract_pr_urls(combined_output)
     if pr_urls:
         if len(pr_urls) == 1:
             await results_channel.send(f"🔗 PR tạo tự động: {pr_urls[0]}")
