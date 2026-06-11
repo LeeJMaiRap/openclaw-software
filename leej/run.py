@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -30,6 +31,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("request", nargs="*", help="User request text.")
     parser.add_argument("--file", dest="file", help="Read request text from file.")
     parser.add_argument("--batch", action="store_true", default=True, help="Generate a batch; default enabled.")
+    parser.add_argument(
+        "--auto-pr",
+        action="store_true",
+        help="After checker passes for the batch, create one GitHub PR per passing task.",
+    )
     return parser.parse_args()
 
 
@@ -90,6 +96,49 @@ def write_runtime_actions(batch_id: str, plan: dict[str, Any]) -> Path:
     path = LOG_DIR / f"{batch_id}-runtime-actions.json"
     path.write_text(json.dumps(actions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return path
+
+
+def task_ids_from_plan(plan: dict[str, Any]) -> list[str]:
+    ids: list[str] = []
+    for wave in plan["waves"]:
+        for task in wave["tasks"]:
+            ids.append(task["task_id"])
+    return ids
+
+
+def create_prs_after_checker_pass(batch_id: str, task_ids: list[str], project_name: str | None) -> list[str]:
+    checker = run_cmd([sys.executable, "leej/checker.py", "--batch", batch_id, "--auto-pr"])
+    print(checker.stdout.rstrip())
+    if checker.returncode != 0:
+        print("⚠️ Auto PR skipped: checker did not pass 100%")
+        return []
+
+    urls: list[str] = []
+    for task_id in task_ids:
+        print(f"🔀 Creating PR for {task_id}...")
+        cmd = [
+            sys.executable,
+            "leej/pr_creator.py",
+            "--task-id",
+            task_id,
+            "--batch-id",
+            batch_id,
+        ]
+        if project_name:
+            cmd.extend(["--project", project_name])
+        result = run_cmd(cmd)
+        output = result.stdout.strip()
+        if result.returncode != 0:
+            print(f"⚠️ PR creation failed for {task_id}; pipeline continues")
+            if output:
+                print(output)
+            continue
+        print(output)
+        for line in output.splitlines():
+            if re.match(r"https://github\.com/.+/pull/\d+", line.strip()):
+                urls.append(line.strip())
+                print(f"🔗 PR: {line.strip()}")
+    return urls
 
 
 def write_pipeline_report(batch_id: str, request: str, plan: dict[str, Any], actions_path: Path, started: float) -> Path:
@@ -156,12 +205,19 @@ def main() -> int:
     actions_path = write_runtime_actions(batch_id, plan)
     report_path = write_pipeline_report(batch_id, request, plan, actions_path, started)
 
+    pr_urls: list[str] = []
+    if args.auto_pr:
+        project_name = os.environ.get("OPENCLAW_DISCORD_PROJECT_NAME")
+        pr_urls = create_prs_after_checker_pass(batch_id, task_ids_from_plan(plan), project_name)
+
     print("\n⏳ Runtime handoff ready:")
     print(f"   {actions_path.relative_to(REPO_ROOT)}")
     print(f"   {report_path.relative_to(REPO_ROOT)}")
     print("═══════════════════════════════════════")
     print(f"✅ Pipeline prepared: Batch {batch_id} — runtime actions ready")
     print(f"Report: {report_path.relative_to(REPO_ROOT)}")
+    for url in pr_urls:
+        print(f"🔗 PR: {url}")
     print("═══════════════════════════════════════")
     return 0
 

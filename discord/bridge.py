@@ -99,11 +99,17 @@ intents.guilds = True
 intents.messages = True
 client = discord.Client(intents=intents)
 
-async def run_pipeline(request: str, project_id: int | str | None = None) -> subprocess.CompletedProcess[str]:
-    cmd = ["python3", "leej/run.py", request]
+async def run_pipeline(
+    request: str,
+    project_id: int | str | None = None,
+    project_name: str | None = None,
+) -> subprocess.CompletedProcess[str]:
+    cmd = ["python3", "leej/run.py", "--auto-pr", request]
     env = os.environ.copy()
     if project_id is not None:
         env["OPENCLAW_DISCORD_PROJECT_ID"] = str(project_id)
+    if project_name is not None:
+        env["OPENCLAW_DISCORD_PROJECT_NAME"] = project_name
     return await asyncio.to_thread(
         subprocess.run,
         cmd,
@@ -289,6 +295,17 @@ async def run_checker_batch(batch_id: str) -> subprocess.CompletedProcess[str]:
         stderr=subprocess.STDOUT,
         timeout=20 * 60,
     )
+
+def extract_pr_urls(output: str) -> list[str]:
+    urls = re.findall(r"https://github\.com/[^\s)]+/pull/\d+", output)
+    seen: set[str] = set()
+    unique: list[str] = []
+    for url in urls:
+        if url not in seen:
+            seen.add(url)
+            unique.append(url)
+    return unique
+
 
 def build_summary(request: str, result: subprocess.CompletedProcess[str]) -> tuple[str, Path | None]:
     output = result.stdout or ""
@@ -529,7 +546,11 @@ async def handle_run(message: discord.Message, request: str) -> None:
         await workers_channel.send(f"⚙️ Project {project['name']}: bắt đầu pipeline\nRequest: {request}")
 
     try:
-        result = await run_pipeline(request, project["id"] if project_route is not None else None)
+        result = await run_pipeline(
+            request,
+            project["id"] if project_route is not None else None,
+            project["name"] if project_route is not None else None,
+        )
     except subprocess.TimeoutExpired:
         await results_channel.send("❌ Pipeline failed: timeout after 60 minutes")
         return
@@ -544,6 +565,14 @@ async def handle_run(message: discord.Message, request: str) -> None:
         await workers_channel.send(f"✅ Pipeline finished. Batch: {batch_id}. Exit code: {result.returncode}")
 
     await send_text_or_file(results_channel, summary, f"{batch_id}-discord-output.md")
+
+    pr_urls = extract_pr_urls(result.stdout or "")
+    if pr_urls:
+        if len(pr_urls) == 1:
+            await results_channel.send(f"🔗 PR tạo tự động: {pr_urls[0]}")
+        else:
+            text = "\n".join(f"- {url}" for url in pr_urls)
+            await artifacts_channel.send(f"🔗 PR tạo tự động:\n{text}")
 
     if report_path is not None:
         try:

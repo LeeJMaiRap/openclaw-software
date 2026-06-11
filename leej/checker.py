@@ -173,7 +173,7 @@ def run_single(task_file: str) -> int:
     return 0 if result["ok"] else 1
 
 
-def run_batch(batch_id: str) -> int:
+def run_batch(batch_id: str, auto_pr: bool = False) -> int:
     tasks = load_batch_tasks(batch_id)
     results = [check_task(task) for task in tasks]
     for result in results:
@@ -181,22 +181,32 @@ def run_batch(batch_id: str) -> int:
     path = write_batch_check_log(batch_id, results)
     passed = sum(1 for r in results if r["ok"])
     total = len(results)
-    if passed == total:
+    all_passed = passed == total
+    if all_passed:
         print(f"✅ Batch {batch_id}: {passed}/{total} tasks passed")
     else:
         print(f"⚠️ Batch {batch_id}: {passed}/{total} tasks passed")
     print(f"📝 Check log: {path.relative_to(REPO_ROOT)}")
-    return 0 if passed == total else 1
+    if auto_pr and all_passed:
+        print(f"PR_READY_BATCH={batch_id}")
+        for task in tasks:
+            print(f"PR_READY_TASK={task['task_id']}")
+    return 0 if all_passed else 1
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check task outputs against acceptance criteria.")
     parser.add_argument("task_file", nargs="?", help="Path to task JSON file.")
     parser.add_argument("--batch", dest="batch_id", help="Check all tasks in batch id.")
+    parser.add_argument(
+        "--auto-pr",
+        action="store_true",
+        help="If batch is fully passing, print PR_READY_* markers for caller automation.",
+    )
     args = parser.parse_args()
 
     if args.batch_id:
-        return run_batch(args.batch_id)
+        return run_batch(args.batch_id, auto_pr=args.auto_pr)
     if not args.task_file:
         print("Usage: python3 leej/checker.py tasks/TASK-001.json", file=sys.stderr)
         print("   or: python3 leej/checker.py --batch B-001", file=sys.stderr)

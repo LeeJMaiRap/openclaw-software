@@ -21,3 +21,10 @@ CONFIG_EOF
 
 ssh-keyscan github.com >> "$SSH_DIR/known_hosts" 2>/dev/null
 echo "SSH setup OK"
+# Restore gh config
+if [ -f /data/.openclaw/gh/hosts.yml ]; then
+  mkdir -p /root/.config/gh
+  cp /data/.openclaw/gh/hosts.yml /root/.config/gh/hosts.yml
+  chmod 600 /root/.config/gh/hosts.yml
+  echo "gh config restored"
+fi
