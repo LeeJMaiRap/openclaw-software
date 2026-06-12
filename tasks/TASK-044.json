@@ -1,0 +1,22 @@
+{
+  "task_id": "TASK-044",
+  "project": "openclaw-ai",
+  "goal": "Xác định rõ đầu vào, đầu ra và phạm vi xử lý cho hàm Python đếm số nguyên tố trong một list số nguyên",
+  "acceptance_criteria": [
+    "Mô tả rõ hàm nhận một list số nguyên và trả về số lượng phần tử là số nguyên tố",
+    "Quy định rõ cách xử lý các giá trị không phải số nguyên tố như số âm, 0, 1",
+    "Nêu rõ tên hàm hoặc interface dự kiến để task code bám theo"
+  ],
+  "constraints": [
+    "Keep the solution simple for Sprint 5.",
+    "Write output in Vietnamese unless the task requires another language."
+  ],
+  "context_files": [
+    "docs/architecture/openclaw_knowledge_base_v2.txt"
+  ],
+  "worker": "hermes",
+  "priority": "high",
+  "timeout_minutes": 10,
+  "depends_on": [],
+  "batch_id": "B-014"
+}
