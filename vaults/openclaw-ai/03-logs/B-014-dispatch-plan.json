@@ -1,0 +1,111 @@
+{
+  "batch_id": "B-014",
+  "timeout_minutes": 20,
+  "poll_interval_seconds": 15,
+  "status": "prepared",
+  "waves": [
+    {
+      "wave": 1,
+      "tasks": [
+        {
+          "task_id": "TASK-044",
+          "worker": "hermes",
+          "sessionTarget": null,
+          "sessionName": "agent:software:project-8-worker-hermes",
+          "sessionKey": "agent:software:project-8-worker-hermes",
+          "dispatchMethod": "sessions_send",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+          "timeoutSeconds": 600,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-044\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: none\n\nGoal:\nXác định rõ đầu vào, đầu ra và phạm vi xử lý cho hàm Python đếm số nguyên tố trong một list số nguyên\n\nAcceptance criteria:\n1. Mô tả rõ hàm nhận một list số nguyên và trả về số lượng phần tử là số nguyên tố\n2. Quy định rõ cách xử lý các giá trị không phải số nguyên tố như số âm, 0, 1\n3. Nêu rõ tên hàm hoặc interface dự kiến để task code bám theo\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-044-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-044-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-044.json",
+          "depends_on": [],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-044",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.4",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-044\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: none\n\nGoal:\nXác định rõ đầu vào, đầu ra và phạm vi xử lý cho hàm Python đếm số nguyên tố trong một list số nguyên\n\nAcceptance criteria:\n1. Mô tả rõ hàm nhận một list số nguyên và trả về số lượng phần tử là số nguyên tố\n2. Quy định rõ cách xử lý các giá trị không phải số nguyên tố như số âm, 0, 1\n3. Nêu rõ tên hàm hoặc interface dự kiến để task code bám theo\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-044-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-044-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+              "lightContext": true,
+              "timeoutSeconds": 600
+            }
+          },
+          "sessionsSend": {
+            "sessionKey": "agent:software:project-8-worker-hermes",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-044\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: none\n\nGoal:\nXác định rõ đầu vào, đầu ra và phạm vi xử lý cho hàm Python đếm số nguyên tố trong một list số nguyên\n\nAcceptance criteria:\n1. Mô tả rõ hàm nhận một list số nguyên và trả về số lượng phần tử là số nguyên tố\n2. Quy định rõ cách xử lý các giá trị không phải số nguyên tố như số âm, 0, 1\n3. Nêu rõ tên hàm hoặc interface dự kiến để task code bám theo\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-044-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-044-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+            "timeoutSeconds": 600
+          }
+        }
+      ]
+    },
+    {
+      "wave": 2,
+      "tasks": [
+        {
+          "task_id": "TASK-045",
+          "worker": "claude-cli",
+          "sessionTarget": null,
+          "sessionName": "agent:software:project-8-worker-code",
+          "sessionKey": "agent:software:project-8-worker-code",
+          "dispatchMethod": "sessions_send",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1200,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-045\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: TASK-044\n\nGoal:\nTạo hàm Python hoạt động đúng để đếm số lượng số nguyên tố trong list đầu vào\n\nAcceptance criteria:\n1. Có hàm Python nhận vào một list và trả về một số nguyên là lượng số nguyên tố trong list\n2. Hàm xử lý đúng các trường hợp số âm, 0, 1, số nguyên tố và hợp số\n3. Code chạy được, không lỗi cú pháp\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-045-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-045-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-045.json",
+          "depends_on": [
+            "TASK-044"
+          ],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-045",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-045\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: TASK-044\n\nGoal:\nTạo hàm Python hoạt động đúng để đếm số lượng số nguyên tố trong list đầu vào\n\nAcceptance criteria:\n1. Có hàm Python nhận vào một list và trả về một số nguyên là lượng số nguyên tố trong list\n2. Hàm xử lý đúng các trường hợp số âm, 0, 1, số nguyên tố và hợp số\n3. Code chạy được, không lỗi cú pháp\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-045-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-045-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+              "lightContext": true,
+              "timeoutSeconds": 1200
+            }
+          },
+          "sessionsSend": {
+            "sessionKey": "agent:software:project-8-worker-code",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-045\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: TASK-044\n\nGoal:\nTạo hàm Python hoạt động đúng để đếm số lượng số nguyên tố trong list đầu vào\n\nAcceptance criteria:\n1. Có hàm Python nhận vào một list và trả về một số nguyên là lượng số nguyên tố trong list\n2. Hàm xử lý đúng các trường hợp số âm, 0, 1, số nguyên tố và hợp số\n3. Code chạy được, không lỗi cú pháp\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-045-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-045-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+            "timeoutSeconds": 1200
+          }
+        }
+      ]
+    },
+    {
+      "wave": 3,
+      "tasks": [
+        {
+          "task_id": "TASK-046",
+          "worker": "claude-cli",
+          "sessionTarget": null,
+          "sessionName": "agent:software:project-8-worker-code",
+          "sessionKey": "agent:software:project-8-worker-code",
+          "dispatchMethod": "sessions_send",
+          "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+          "timeoutSeconds": 1200,
+          "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-046\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: TASK-045\n\nGoal:\nTạo bộ unit test kiểm tra đầy đủ hành vi chính của hàm đếm số nguyên tố\n\nAcceptance criteria:\n1. Có test cho list rỗng và trả về 0\n2. Có test cho list chứa số âm, 0, 1 để xác nhận không bị tính là số nguyên tố\n3. Có test cho list chứa nhiều số nguyên tố và hợp số với kết quả đếm chính xác\n4. Toàn bộ unit test chạy pass với implementation đã viết\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-046-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-046-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+          "taskPath": "/data/workspace/openclaw-ai/tasks/TASK-046.json",
+          "depends_on": [
+            "TASK-045"
+          ],
+          "cronPayload": {
+            "sessionTarget": "session:worker-TASK-046",
+            "payload": {
+              "kind": "agentTurn",
+              "model": "gpt-gmn-token-tunel/cx/gpt-5.5",
+              "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-046\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: TASK-045\n\nGoal:\nTạo bộ unit test kiểm tra đầy đủ hành vi chính của hàm đếm số nguyên tố\n\nAcceptance criteria:\n1. Có test cho list rỗng và trả về 0\n2. Có test cho list chứa số âm, 0, 1 để xác nhận không bị tính là số nguyên tố\n3. Có test cho list chứa nhiều số nguyên tố và hợp số với kết quả đếm chính xác\n4. Toàn bộ unit test chạy pass với implementation đã viết\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-046-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-046-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+              "lightContext": true,
+              "timeoutSeconds": 1200
+            }
+          },
+          "sessionsSend": {
+            "sessionKey": "agent:software:project-8-worker-code",
+            "message": "[OpenClaw Worker Task]\n\nTask ID: TASK-046\nProject: openclaw-ai\nBatch ID: B-014\nDepends on: TASK-045\n\nGoal:\nTạo bộ unit test kiểm tra đầy đủ hành vi chính của hàm đếm số nguyên tố\n\nAcceptance criteria:\n1. Có test cho list rỗng và trả về 0\n2. Có test cho list chứa số âm, 0, 1 để xác nhận không bị tính là số nguyên tố\n3. Có test cho list chứa nhiều số nguyên tố và hợp số với kết quả đếm chính xác\n4. Toàn bộ unit test chạy pass với implementation đã viết\n\nConstraints:\n- Keep the solution simple for Sprint 5.\n- Write output in Vietnamese unless the task requires another language.\n\nOUTPUT REQUIREMENTS:\n- Write output to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/02-outputs/TASK-046-output.md\n- Write done log to EXACT path:\n  /data/workspace/openclaw-ai/vaults/openclaw-ai/03-logs/TASK-046-done.md\n- All source code files under:\n  /data/workspace/openclaw-ai/\n- NEVER use /data/workspace/ as root\n- NEVER use relative paths\n- Keep response concise and include verification notes.\n",
+            "timeoutSeconds": 1200
+          }
+        }
+      ]
+    }
+  ]
+}
